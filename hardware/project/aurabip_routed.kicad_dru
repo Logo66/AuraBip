@@ -1,0 +1,4 @@
+(version 1)
+(rule schmalspur
+  (constraint track_width (min 0.11mm))
+)

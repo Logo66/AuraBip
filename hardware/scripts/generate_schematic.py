@@ -446,7 +446,10 @@ def generate():
               "3": V3, "45": "ESP_EN",
               "4": "BTN_BOOT", "5": "VBAT_SENSE", "6": "LED_STATUS",
               "7": "LORA_DIO1",
-              "8": "I2S_BCLK", "9": "I2S_LRCK", "10": "I2S_DOUT",
+              "8": "I2S_BCLK", "9": "I2S_LRCK",
+              # I2S_DOUT auf IO47: IO6-Region war beim Routing
+              # eingemauert — die S3-GPIO-Matrix erlaubt den Umzug
+              "27": "I2S_DOUT",
               "11": "AMP_SD", "12": "I2C_SDA", "13": "I2C_SCL",
               "14": "IMU_INT1",
               # SPI2 geteilt: LoRa (E22) + OLED (SSD1327), je eigener CS
