@@ -22,7 +22,8 @@ Alle LCSC-Nummern sind ⚠️ **vor Bestellung zu verifizieren** (Verfügbarkeit
 | Ref | Bauteil | Package | Funktion | LCSC (⚠️ prüfen) | ~Preis |
 |---|---|---|---|---|---|
 | U10 | **Ebyte E22-900M22S** | Modul 16×26 | SX1262 + TCXO + PA, FANET-TX (Typ 1) → OGN-Sichtbarkeit (Pflicht ab 2027). TX-Leistung in FW hart auf 14 dBm ERP begrenzt | TBD | 5.50 CHF |
-| J5 | **u.FL / IPEX** Buchse | SMD | 868-MHz-Antenne (Flexantenne intern im Gehäuse, ~1 CHF) | TBD | 0.40 CHF |
+| J5 | **u.FL / IPEX** Buchse (Hirose U.FL-R-SMT-1) | SMD | 868-MHz-Antennenanschluss | TBD | 0.40 CHF |
+| ANT | **Molex 105262-0001** Flex-Klebeantenne 868/915, u.FL, 100 mm Kabel (Alt.: Taoglas FXP14; -0002 = 150 mm Kabel) | im Gehäuse (Wandnische, vertikal) | Nischenmaß im Fusion-Skript an Element anpassen (ant_l/ant_h) | Beta LAYOUT ~8 € | 8.00 CHF |
 | U7 | **MCP73831T-2ACI/OT** | SOT-23-5 | LiPo-Lader 1 Zelle, 500 mA (R_PROG 2 kΩ) | C424093 | 0.60 CHF |
 | U8 | **ME6217C33M5G** | SOT-23-5 | LDO 3.3 V / **800 mA** (ESP32-BLE-Peak + LoRa-TX + GNSS gleichzeitig; Amp hängt an VBAT). Pinkompatibel zu AP2112K | C82942 (⚠️) | 0.20 CHF |
 | U9 | **USBLC6-2SC6** | SOT-23-6 | USB-ESD-Schutz | C7519 | 0.20 CHF |

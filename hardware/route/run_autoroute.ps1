@@ -25,7 +25,7 @@ Write-Host "[2/5] Specctra-DSN-Export..."
 Write-Host "[3/5] FreeRouting (headless)..."
 if (Test-Path $ses) { Move-Item $ses "$ses.bak" -Force }
 $env:JAVA_TOOL_OPTIONS = "-Djava.awt.headless=true"
-& java -jar $jar -de $dsn -do $ses -mp 30 | Out-Null
+& java -jar $jar -de $dsn -do $ses -mp 8 | Out-Null
 Remove-Item Env:\JAVA_TOOL_OPTIONS -ErrorAction SilentlyContinue
 
 Write-Host "[4/6] SES-Import (Runde 1)..."
@@ -39,7 +39,7 @@ $ses2 = "$wd\aurabip_r2.ses"
 & $py "$wd\export_dsn.py" $out $dsn2 2>$null | Out-Null
 if (Test-Path $ses2) { Remove-Item $ses2 -Force }
 $env:JAVA_TOOL_OPTIONS = "-Djava.awt.headless=true"
-& java -jar $jar -de $dsn2 -do $ses2 -mp 30 | Out-Null
+& java -jar $jar -de $dsn2 -do $ses2 -mp 8 | Out-Null
 Remove-Item Env:\JAVA_TOOL_OPTIONS -ErrorAction SilentlyContinue
 if (Test-Path $ses2) {
   & $py "$wd\finalize.py" $out $ses2 $out 0.1 2>$null | Out-Null

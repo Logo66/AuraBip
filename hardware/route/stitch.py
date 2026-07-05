@@ -64,12 +64,17 @@ gc = gnd.GetNetCode()
 rv = VIA_OD / 2.0
 added = 0
 gx = MM(3.0)
-while gx <= MM(33.0):
+while gx <= MM(48.0):     # Board 52x52
     gy = MM(3.0)
-    while gy <= MM(49.0):
+    while gy <= MM(48.0):
         ok = True
         if KO[0] <= gx <= KO[2] and KO[1] <= gy <= KO[3]:
             ok = False
+        # runde Ecken (r=1.5) meiden: Via >= 2mm von jeder Ecke
+        for (ex, ey) in ((3.0, 3.0), (49.0, 3.0), (3.0, 49.0), (49.0, 49.0)):
+            if math.hypot(gx - MM(ex), gy - MM(ey)) < MM(2.5):
+                ok = False
+                break
         if ok:
             for (px, py, r, net) in pads:
                 lim = rv + r + (CLR if net != gc else MM(0.15))

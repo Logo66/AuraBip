@@ -33,18 +33,11 @@ b = pcbnew.LoadBoard(SRC)
 F, B = pcbnew.F_Cu, pcbnew.B_Cu
 _fps = {fp.GetReference(): fp for fp in b.GetFootprints()}
 
-# ---------- Loesch-Kandidaten: handgeroutete Netze KOMPLETT neu ----------
-WIPE_NETS = {"LORA_NSS", "LORA_RST", "LORA_BUSY", "LORA_DIO1", "LORA_TXEN",
-             "LORA_RXEN", "LORA_ANT", "SPI2_SCK", "SPI2_MOSI", "SPI2_MISO",
-             "TP_IO38", "TP_IO40", "TP_IO41", "TP_IO42", "USB_DN", "USB_DP",
-             "ESP_EN", "I2S_DOUT", "I2S_LRCK", "CC2", "AMP_SD"}
+# NICHT-DESTRUKTIV: FreeRoutings Zuege bleiben stehen, wir ergaenzen nur
+# die offenen Netze. Nur echte Null-Segmente raus.
 to_remove = []
 for t in b.GetTracks():
-    s, e = t.GetStart(), t.GetEnd()
-    if t.Type() != pcbnew.PCB_VIA_T and s == e:
-        to_remove.append(t)
-        continue
-    if t.GetNetname() in WIPE_NETS:
+    if t.Type() != pcbnew.PCB_VIA_T and t.GetStart() == t.GetEnd():
         to_remove.append(t)
 _remove_ids = {t.m_Uuid.AsString() for t in to_remove}
 
@@ -435,24 +428,65 @@ def gnd_hookup(ref, num):
     return False
 
 
-# RF zuerst (kurz halten!), dann Bus, dann Rest
-results.append(route_same_layer("U10", "21", "J5", "1"))      # LORA_ANT (B)
-for a, bnum in [("25", "19"), ("16", "18"), ("15", "17"), ("17", "16"),
-                ("18", "14"), ("19", "15"), ("7", "13"),
-                ("20", "7"), ("33", "6")]:
-    results.append(route_cross_layer("U1", a, "U10", bnum))
-for a, tp in [("34", "TP1"), ("36", "TP2"), ("37", "TP3"), ("38", "TP4")]:
-    results.append(route_cross_layer("U1", a, tp, "1"))
-results.append(route_pair("U1", "23", "U9", "6"))             # USB_DN
-results.append(route_pair("U1", "24", "U9", "4"))             # USB_DP
-results.append(route_pair("U1", "45", "R5", "2"))             # ESP_EN
-results.append(route_pair("U1", "10", "U6", "1"))             # I2S_DOUT
-results.append(route_pair("U1", "9", "U6", "14"))             # I2S_LRCK
-results.append(route_pair("J1", "B5", "R2", "1", exit_a=(0, -1.3)))
-results.append(route_pair("U1", "11", "R8", "2"))             # AMP_SD
-results.append(route_pair("U4", "1", "U2", "4", exit_a=(-0.9, 0)))
-results.append(route_pair("U4", "2", "U2", "2", exit_a=(-0.9, 0.6)))
-results.append(gnd_hookup("U2", "3"))
+# Feste, geometrisch sinnvolle Paarungen fuer bekannte Zwei-Pad-Verbindungen.
+# Werden nur ausgefuehrt, wenn das Netz laut Connectivity noch offen ist.
+b.BuildConnectivity()
+conn = b.GetConnectivity()
+
+
+def net_open(ref, num):
+    """True, wenn dieser Pad noch unrouted (ungebundene Ratsnest-Kante)."""
+    try:
+        pad = pad_of(ref, num)
+    except Exception:
+        return False
+    return conn.GetRatsnestForPad(pad).__len__() > 0 if hasattr(
+        conn, "GetRatsnestForPad") else True
+
+
+def try_pair(refA, numA, refB, numB, exit_a=None, cross=False):
+    if not net_open(refA, numA):
+        return None
+    r = (route_cross_layer(refA, numA, refB, numB) if cross
+         else route_pair(refA, numA, refB, numB, exit_a=exit_a))
+    b.BuildConnectivity()
+    return r
+
+
+PAIRS = [
+    ("U10", "21", "J5", "1", None, False),     # LORA_ANT
+    ("U1", "25", "U10", "19", None, True),
+    ("U1", "16", "U10", "18", None, True),
+    ("U1", "15", "U10", "17", None, True),
+    ("U1", "17", "U10", "16", None, True),
+    ("U1", "18", "U10", "14", None, True),
+    ("U1", "19", "U10", "15", None, True),
+    ("U1", "7",  "U10", "13", None, True),
+    ("U1", "20", "U10", "7",  None, True),
+    ("U1", "33", "U10", "6",  None, True),
+    ("U1", "34", "TP1", "1",  None, True),
+    ("U1", "36", "TP2", "1",  None, True),
+    ("U1", "37", "TP3", "1",  None, True),
+    ("U1", "38", "TP4", "1",  None, True),
+    ("U1", "23", "U9", "6",   None, False),
+    ("U1", "24", "U9", "4",   None, False),
+    ("U1", "45", "R5", "2",   None, False),
+    ("U1", "10", "U6", "1",   None, False),
+    ("U1", "9",  "U6", "14",  None, False),
+    ("J1", "B5", "R2", "1",   (0, -1.3), False),
+    ("U1", "11", "R8", "2",   None, False),
+    ("U4", "1",  "U2", "4",   (-0.9, 0), False),
+    ("U4", "2",  "U2", "2",   (-0.9, 0.6), False),
+]
+for (ra, na, rb, nb, ex, cr) in PAIRS:
+    r = try_pair(ra, na, rb, nb, exit_a=ex, cross=cr)
+    if r is not None:
+        results.append(r)
+for ref, num in [("U2", "3"), ("U6", "3"), ("U6", "11"), ("U6", "15"),
+                 ("U5", "31")]:
+    if net_open(ref, num):
+        results.append(gnd_hookup(ref, num))
+        b.BuildConnectivity()
 
 ok = results.count(True)
 L(f"{ok}/{len(results)} Verbindungen")
