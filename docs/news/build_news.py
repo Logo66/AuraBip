@@ -58,9 +58,10 @@ td{font-variant-numeric:tabular-nums}
 <div class="wrap">
   <p class="eyebrow">KIE Engineering &middot; Projekt-News &middot; Juli 2026</p>
   <h1>AuraBip: das kompakte Vario, das dich am Himmel sichtbar macht</h1>
-  <p class="lede">Ab 2027 wird elektronische Sichtbarkeit f&uuml;r Gleitschirme zur
-  Pflicht. Wir bauen daf&uuml;r ein Ger&auml;t, das Variometer, GPS, Sprachausgabe
-  und FANET-Sender in eine Handfl&auml;che packt &mdash; entwickelt in der Schweiz,
+  <p class="lede">Elektronische Sichtbarkeit wird f&uuml;r Gleitschirme kommen &mdash;
+  der diskutierte europ&auml;ische Standard hei&szlig;t ADS-L. Wir bauen ein Ger&auml;t,
+  das Variometer, GPS, Sprachausgabe und 868-MHz-Funk in eine Handfl&auml;che packt:
+  heute FANET/OGN, f&uuml;r ADS-L vorbereitet &mdash; entwickelt in der Schweiz,
   gefertigt in Kleinserie.</p>
 
   <figure class="hero">
@@ -74,8 +75,10 @@ td{font-variant-numeric:tabular-nums}
     <tr><th>Instant-Vario</th><td>Barometer BMP581 (50&thinsp;Hz) + Beschleunigungssensor,
       Kalman-gekoppelt &mdash; Ansprechzeit unter 100&thinsp;ms statt der tr&auml;gen Sekunde
       reiner Baro-Varios</td></tr>
-    <tr><th>FANET-Sichtbarkeit</th><td>868-MHz-Sender (SX1262) meldet die Position ins
-      offene FANET/OGN-Netz &mdash; deckt die kommende Sichtbarkeits-Pflicht ab</td></tr>
+    <tr><th>Sichtbarkeit</th><td>868-MHz-Sender (SX1262) meldet die Position ins offene
+      FANET/OGN-Netz. Die Funk-Hardware beherrscht auch GFSK &mdash; damit ist das Ger&auml;t
+      f&uuml;r den kommenden <b>ADS-L</b>-Standard vorbereitet (Firmware-Update, sobald er
+      f&uuml;r Gleitschirme greift)</td></tr>
     <tr><th>GPS</th><td>GNSS-Modul mit integrierter Antenne, thermisch und
       hochfrequent sauber vom Rest getrennt</td></tr>
     <tr><th>Ton &amp; Sprache</th><td>Class-D-Verst&auml;rker mit 28-mm-Lautsprecher in

@@ -21,7 +21,7 @@ Alle LCSC-Nummern sind ⚠️ **vor Bestellung zu verifizieren** (Verfügbarkeit
 
 | Ref | Bauteil | Package | Funktion | LCSC (⚠️ prüfen) | ~Preis |
 |---|---|---|---|---|---|
-| U10 | **Ebyte E22-900M22S** | Modul 16×26 | SX1262 + TCXO + PA, FANET-TX (Typ 1) → OGN-Sichtbarkeit (Pflicht ab 2027). TX-Leistung in FW hart auf 14 dBm ERP begrenzt | TBD | 5.50 CHF |
+| U10 | **Ebyte E22-900M22S** | Modul 16×26 | SX1262 + TCXO + PA, FANET-TX (Typ 1) → OGN-Sichtbarkeit; GFSK-fähig = **ADS-L-ready** für den kommenden Conspicuity-Standard. TX-Leistung in FW hart auf 14 dBm ERP begrenzt | TBD | 5.50 CHF |
 | J5 | **u.FL / IPEX** Buchse (Hirose U.FL-R-SMT-1) | SMD | 868-MHz-Antennenanschluss | TBD | 0.40 CHF |
 | ANT | **Molex 105262-0001** Flex-Klebeantenne 868/915, u.FL, 100 mm Kabel (Alt.: Taoglas FXP14; -0002 = 150 mm Kabel) | im Gehäuse (Wandnische, vertikal) | Nischenmaß im Fusion-Skript an Element anpassen (ant_l/ant_h) | Beta LAYOUT ~8 € | 8.00 CHF |
 | U7 | **MCP73831T-2ACI/OT** | SOT-23-5 | LiPo-Lader 1 Zelle, 500 mA (R_PROG 2 kΩ) | C424093 | 0.60 CHF |
@@ -63,7 +63,7 @@ PCB+SMT bei JLC (50 Stk, 4-Lagen): ~9 CHF/Board. Akku 802030: ~3 CHF. Antenne 86
 
 ## Bewusste Entscheidungen
 
-- **FANET-TX drin** (Änderung 2026-07-03): Elektronische Sichtbarkeits-Pflicht (FLARM/FANET/OGN) ab 2027 → SX1262-Modul E22-900M22S. **Nur TX** (Tracking Typ 1, FANET→OGN), keine Warnlogik — Warnquellen-Philosophie bleibt. FANET-Encoder aus WindBuddy `lib/fanet` (eigener Clean-Room-Code) wiederverwenden. Modul statt nacktem SX1262: TCXO (Frequenzstabilität bei Kälte!) + fertiges RF-Frontend.
+- **FANET-TX drin** (Änderung 2026-07-03): Elektronische Sichtbarkeit (Conspicuity) ist absehbar — Standard-Kandidat ist **ADS-L**, ein festes Pflichtdatum gibt es noch nicht. SX1262-Modul E22-900M22S: sendet heute FANET→OGN, GFSK-fähig für späteres ADS-L-out per Firmware. **Nur TX** (Tracking Typ 1, FANET→OGN), keine Warnlogik — Warnquellen-Philosophie bleibt. FANET-Encoder aus WindBuddy `lib/fanet` (eigener Clean-Room-Code) wiederverwenden. Modul statt nacktem SX1262: TCXO (Frequenzstabilität bei Kälte!) + fertiges RF-Frontend.
 - **Kein USB-UART-Chip**: ESP32-S3 natives USB (GPIO19/20) für Flashen + CDC-Logs.
 - **Kein Fuel-Gauge** (v1): VBAT-Teiler an ADC reicht für %-Anzeige. v2-Option: MAX17048.
 - **Kein Power-Path** (v1): MCP73831 lädt, System zieht parallel an VBAT. Bekannte Schwäche: Terminierung bei Last ungenau. v2-Option: BQ24074.

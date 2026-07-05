@@ -10,7 +10,7 @@ BOARD = sys.argv[1] if len(sys.argv) > 1 else os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "project", "aurabip.kicad_pcb")
 BW, BH = 52.0, 52.0
 # Steckverbinder/Taster duerfen ueber die Kante ragen
-EDGE_OK = {"J1", "J2", "J3", "SW1"}
+EDGE_OK = {"J1", "J2", "SW1"}
 
 T = pcbnew.ToMM
 b = pcbnew.LoadBoard(BOARD)

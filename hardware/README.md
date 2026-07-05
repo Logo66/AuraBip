@@ -2,8 +2,8 @@
 
 © 2026 KIE Engineering. Proprietär.
 
-Kompaktes BLE-Vario mit Ton-/Sprachausgabe **und FANET-TX** (Sichtbarkeits-
-pflicht ab 2027, FANET→OGN): **36×52 mm, 4 Lagen, doppelseitig bestückt**.
+Kompaktes BLE-Vario mit Ton-/Sprachausgabe **und FANET-TX** (FANET→OGN;
+ADS-L-ready für den kommenden Conspicuity-Standard): **36×52 mm, 4 Lagen, doppelseitig bestückt**.
 Vorderseite: MCU, Sensorik, GNSS, Audio, Power. Rückseite: E22-900M22S
 (SX1262) + u.FL-Antennenbuchse. OLED-Modul gesteckt über der Vorderseite,
 Akku (LiPo 802030) und Lautsprecher extern per JST-PH.

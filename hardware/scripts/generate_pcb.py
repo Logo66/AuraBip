@@ -337,9 +337,10 @@ PLACEMENT = [
     # links vom Amp: rechts davon liegt das E22-Padfeld der Rueckseite
     # (Durchgangs-Vias fuer den GND-Anschluss waeren dort blockiert)
     ("C9", fp_lib("Capacitor_SMD"), "C_0402_1005Metric",            19.0, 36.9,  90, "100n"),
-    # 90 Grad gedreht: Kabelabgang nach unten, weg von SW2 (Ivo, 2026-07-05)
+    # Oeffnung zur Board-MITTE (Ivo 2026-07-06: nie gegen die Wand,
+    # nicht ueber SW2 — Kabel faehrt von innen ein)
     ("J3", fp_lib("Connector_JST"),
-           "JST_PH_S2B-PH-K_1x02_P2.00mm_Horizontal",               46.0, 43.5,  90, "SPEAKER"),
+           "JST_PH_S2B-PH-K_1x02_P2.00mm_Horizontal",               46.5, 43.5, 270, "SPEAKER"),
 
     # VBAT-Teiler
     ("R9", fp_lib("Resistor_SMD"), "R_0402_1005Metric",             14.5, 36.5,  90, "1M"),
