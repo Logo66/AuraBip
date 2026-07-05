@@ -47,8 +47,8 @@ if (Test-Path $ses2) {
 }
 
 Write-Host "[5.4/6] Handroute (bekannte FreeRouting-Luecken)..."
-& $py "$wd\handroute.py" $out $out 2>$null | Out-Null
-Get-Content "$wd\handroute.log" | Select-Object -Last 1
+& $py "$wd\handroute4.py" $out $out 2>$null | Out-Null
+Get-Content "$wd\handroute4.log" | Select-Object -Last 1
 
 Write-Host "[5.5/6] GND-Stitching (nach Routing)..."
 & $py "$wd\stitch.py" $out $out 2>$null | Out-Null
