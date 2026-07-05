@@ -37,6 +37,8 @@ EDGE_LO, EDGE_HI_X, EDGE_HI_Y = MM(0.6), MM(51.4), MM(51.4)
 MOAT_X1, MOAT_Y1, MOAT_X2, MOAT_Y2 = MM(42.9), MM(18.0), MM(50.6), MM(28.6)
 # Antennen-Keepout ESP32-MINI (siehe generate_pcb.py) + 0.3 Rand
 KO_X1, KO_Y1, KO_X2, KO_Y2 = MM(-1), MM(17.4), MM(6.3), MM(34.6)
+# Antennen-Keepout L96 (Quectel 4.8x7.3) + 0.3 Rand
+KO2_X1, KO2_Y1, KO2_X2, KO2_Y2 = MM(15.3), MM(-1), MM(20.7), MM(8.7)
 TRIES    = [MM(d) for d in (0.50, 0.60, 0.70, 0.80, 0.90, 1.00, 1.15, 1.30, 1.50, 1.80)]
 
 def seg_pt_dist(ax, ay, bx, by, px, py):
@@ -68,8 +70,10 @@ def free(px, py, x, y, net):
     # via point inside board edge
     if x < EDGE_LO or x > EDGE_HI_X or y < EDGE_LO or y > EDGE_HI_Y:
         return False
-    # Antennen-Keepout
+    # Antennen-Keepouts (ESP32 + L96)
     if KO_X1 <= x <= KO_X2 and KO_Y1 <= y <= KO_Y2:
+        return False
+    if KO2_X1 <= x <= KO2_X2 and KO2_Y1 <= y <= KO2_Y2:
         return False
     # Fraes-Graben der Sensor-Insel (Insel selbst x>44.5 y 19.6..27 ist ok,
     # aber der Graben und sein Rand nicht)

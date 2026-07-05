@@ -1,0 +1,36 @@
+﻿Designator,Qty,MPN,Manufacturer,Description,Footprint,Side
+"C1,C11,C12,C4,C5,C6,C7,C9",8,,,Kondensator 100n C_0402_1005Metric,C_0402_1005Metric,Top
+C10,1,,,Kondensator 1u C_0402_1005Metric,C_0402_1005Metric,Top
+C13,1,,,Kondensator 4.7u C_0603_1608Metric,C_0603_1608Metric,Top
+C14,1,,,Kondensator 100n C_0402_1005Metric,C_0402_1005Metric,Bottom
+C15,1,,,Kondensator 10u C_0603_1608Metric,C_0603_1608Metric,Bottom
+"C2,C3",2,,,Kondensator 10u C_0603_1608Metric,C_0603_1608Metric,Top
+C8,1,,,Kondensator 22u C_0805_2012Metric,C_0805_2012Metric,Top
+D1,1,19-217/GHC-YR1S2/3T,Everlight,LED gruen 0603,LED_0603_1608Metric,Top
+D2,1,19-217/BHC-ZL1M2RY/3T,Everlight,LED blau 0603,LED_0603_1608Metric,Top
+J1,1,TYPE-C-31-M-12,HRO,USB-C 16P,USB_C_Receptacle_HRO_TYPE-C-31-M-12,Top
+J2,1,S2B-PH-K-S,JST,Akku-Buchse PH 2.0 2P,JST_PH_S2B-PH-K_1x02_P2.00mm_Horizontal,Top
+J3,1,S2B-PH-K-S,JST,Lautsprecher-Buchse PH 2.0 2P,JST_PH_S2B-PH-K_1x02_P2.00mm_Horizontal,Top
+J4,1,B8B-PH-K-S,JST,OLED-Buchse PH 2.0 8P vertikal,JST_PH_B8B-PH-K_1x08_P2.00mm_Vertical,Top
+J5,1,U.FL-R-SMT-1(10),Hirose,"u.FL-Antennenbuchse, Rueckseite",U.FL_Hirose_U.FL-R-SMT-1_Vertical,Bottom
+"R1,R2",2,,,Widerstand 5.1k R_0402_1005Metric,R_0402_1005Metric,Top
+R11,1,,,Widerstand 2k R_0402_1005Metric,R_0402_1005Metric,Top
+"R3,R4",2,,,Widerstand 4.7k R_0402_1005Metric,R_0402_1005Metric,Top
+R5,1,,,Widerstand 10k R_0402_1005Metric,R_0402_1005Metric,Top
+"R6,R7",2,,,Widerstand 1k R_0402_1005Metric,R_0402_1005Metric,Top
+R8,1,,,Widerstand 100k R_0402_1005Metric,R_0402_1005Metric,Top
+"R10,R9",2,,,Widerstand 1M R_0402_1005Metric,R_0402_1005Metric,Top
+SW1,1,MSK-12C02,Shouhan,"Schiebeschalter (Footprint PCM12, VERIFY)",SW_SPDT_PCM12,Top
+SW2,1,KMR221GLFS,C&K,Taster KMR2 RESET,SW_Push_1P1T_NO_CK_KMR2,Top
+SW3,1,KMR221GLFS,C&K,Taster KMR2 BOOT,SW_Push_1P1T_NO_CK_KMR2,Top
+"TP1,TP2,TP3,TP4",4,,,TP TP TestPoint_Pad_1.5x1.5mm,TestPoint_Pad_1.5x1.5mm,Top
+U1,1,ESP32-S3-MINI-1-N8,Espressif,"WiFi/BLE-Modul, 8MB Flash",ESP32-S2-MINI-1,Top
+U10,1,E22-900M22S,Ebyte,"SX1262-LoRa-Modul, Rueckseite, Handloetung (VERIFY T-H7)",E22_900M22S,Bottom
+U2,1,BMP581,Bosch,Barometer LGA-10 (VERIFY T-H1),BMP581_LGA-10_2x2mm,Top
+U3,1,LSM6DSO32XTR,ST,IMU +/-32g LGA-14 (VERIFY T-H4),Bosch_LGA-14_3x2.5mm_P0.5mm,Top
+U4,1,SHT40-AD1B-R2,Sensirion,Temp/Feuchte DFN-4,Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad,Top
+U5,1,L96-M33,Quectel,"GNSS-Modul, integr. Antenne (VERIFY T-H2)",Quectel_L96,Top
+U6,1,MAX98357AETE+T,Analog Devices,I2S-Amp TQFN-16 (VERIFY T-H3),QFN-16-1EP_3x3mm_P0.5mm_EP1.75x1.75mm,Top
+U7,1,MCP73831T-2ACI/OT,Microchip,LiPo-Lader SOT-23-5,SOT-23-5,Top
+U8,1,ME6217C33M5G,MicrOne,LDO 3.3V 800mA SOT-23-5,SOT-23-5,Top
+U9,1,USBLC6-2SC6,ST,USB-ESD SOT-23-6,SOT-23-6,Top

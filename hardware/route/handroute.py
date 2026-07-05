@@ -213,14 +213,8 @@ results.append(route("U4", "2", "U2", "2", exitA=(-0.9, 0.6)))
 results.append(route("J1", "B5", "R2", "1", exitA=(0, -1.3)))
 # AMP_SD: ESP-Pin zu Pullup, radial raus aus dem Modul-Padfeld
 results.append(route("U1", "11", "R8", "2", auto_a=True))
-# GND-Nachzuegler: Via-in-Pad direkt in die GND-Innenlage;
-# wo blockiert (E22 auf der Rueckseite!) -> Track zum U6.8-Via
-r_u68 = via_in_pad("U6", "8")
-results.append(r_u68)
-if not via_in_pad("C9", "2"):
-    results.append(route("C9", "2", "U6", "8", exitA=(0, 0.9)))
-else:
-    results.append(True)
+# (U6/C9-GND-Sonderfaelle entfallen seit verifiziertem TQFN-Pinout +
+#  C9-Umzug — Fanout deckt sie regulaer ab)
 
 fails = results.count(False)
 L(f"{len(results) - fails}/{len(results)} Verbindungen gelegt")

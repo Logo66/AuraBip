@@ -28,7 +28,7 @@ Alle LCSC-Nummern sind ⚠️ **vor Bestellung zu verifizieren** (Verfügbarkeit
 | U9 | **USBLC6-2SC6** | SOT-23-6 | USB-ESD-Schutz | C7519 | 0.20 CHF |
 | J1 | **TYPE-C-31-M-12** (HRO) | USB-C 16P | Laden + Flashen (USB-CDC/DFU) | C165948 | 0.25 CHF |
 | J2 | **JST PH 2P** (S2B-PH-K-S) | THT gewinkelt | Akku-Anschluss | TBD | 0.10 CHF |
-| BAT | **EEMB LP603450** LiPo 3.7 V 1000–1100 mAh, 34.5×52×6.3 mm, **mit Schutzschaltung** + JST-PH-2.0-Stecker | extern, unter dem 52×52-Board | ~7 h Laufzeit bei ~140 mA Mix; ⚠️ **POLARITÄT am Stecker prüfen** — bei LiPo-Herstellern nicht genormt! | Amazon/EEMB ~8 CHF | 8.00 CHF |
+| BAT | **LiPo 504050**, 3.7 V, **1500 mAh**, 52×42×5 mm, 25 g, −25…+60 °C, Kabel 45 mm, JST-PH 2.0 | extern, unter dem 52×52-Board (Gehäuse-Schacht) | ~10 h Laufzeit bei ~140 mA Mix; Betriebstemp. bis −25 °C ist flugtauglich. ⚠️ **POLARITÄT am Stecker prüfen** — bei LiPo-Herstellern nicht genormt! | ~9 CHF | 9.00 CHF |
 | SW1 | **MSK-12C02** | Schiebeschalter | Ein/Aus (schaltet nur LDO-EN, nicht VBAT — Laden geht auch „aus") | TBD | 0.15 CHF |
 
 ## Audio & UI
@@ -69,13 +69,16 @@ PCB+SMT bei JLC (50 Stk, 4-Lagen): ~9 CHF/Board. Akku 802030: ~3 CHF. Antenne 86
 - **L96 mit integrierter Antenne** statt ATGM336H+Antenne: teurer, aber null RF-Layout-Risiko und kleiner als Patch+Pigtail.
 - **Amp an VBAT**: Audio-Peaks (~1 A kurz) gehen nicht durch den 600-mA-LDO. SD_MODE-Pullup an 3V3 schaltet den Amp mit aus.
 
-## ⚠️ VERIFY vor Fertigungsfreigabe
+## VERIFY-Status (Stand 2026-07-05)
 
-1. Alle LCSC-Nummern + Lagerbestand (T-H1)
-2. L96-Padout gegen Quectel-Hardware-Design-Guide (T-H2)
-3. MAX98357A Exposed-Pad-Maß auf TQFN-Footprint (T-H3)
-4. LSM6DSO32-Pinout gegen ST-Datenblatt (T-H4)
-5. Antennen-Keepouts: ESP32-MINI-Antenne über Boardkante, L96-Patch braucht GND-Fläche darunter lt. Quectel (T-H5)
-6. USB-C-Orientierung: Steckeröffnung muss über die Boardkante ragen (T-H6)
-7. **E22-900M22S-Padout** (Pinnummern + Rastermass) gegen Ebyte-Datenblatt; RXEN/TXEN mit RadioLib setRfSwitchPins (T-H7)
-8. Regulatorik FANET-TX: 14 dBm ERP inkl. Antennengewinn, Duty Cycle fürs Tracking-Intervall (T-H8)
+| Ticket | Status |
+|---|---|
+| T-H2 L96-Padout | ✅ **verifiziert** gegen Quectel HW Design V1.4 (LCC-31, 14×9.6! RF-Brücke R12 + RXD-Teiler R13/R14 ergänzt, Antennen-Keepout 4.8×7.3) |
+| T-H3 MAX98357A | ✅ **verifiziert** gegen ADI-Datenblatt Rev 7 (TQFN-Pinout war falsch → korrigiert; Footprint auf EP1.23 gewechselt; GAIN offen = 9 dB bestätigt) |
+| T-H4 LSM6DSO32 | ✅ **verifiziert** gegen ST-Datenblatt Rev 1 (Pinout korrekt; Footprint auf ST-LayoutBorder3x4y gewechselt) |
+| T-H7 E22-900M22S | ✅ **verifiziert** gegen Ebyte Manual v1.3 (war 14×20/1.27er-Pitch statt 16×26/2.2 — komplett neu; JLC C411293) |
+| T-H1 LCSC/PCBWay-Nummern + Lager | ⏳ offen — bei Bestellung gegen PCBWay-Sortiment prüfen |
+| T-H5 ESP32-Antennen-Keepout-Maße | ⏳ offen (konservativ ausgelegt) |
+| T-H6 USB-C-Überstand | ⏳ offen — 1.2 mm Nase, am ersten Board messen |
+| T-H8 Regulatorik 14 dBm ERP + Duty Cycle | ⏳ offen (vor Verkauf, mit Antennengewinn rechnen) |
+| T-H9 OLED-Kabel-Aderreihenfolge | ⏳ offen — bei Lieferung Sichtprüfung |

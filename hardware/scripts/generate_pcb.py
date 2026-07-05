@@ -51,23 +51,39 @@ def fp_lib(name):
 # ============================================================
 
 def create_l96_footprint():
+    """Quectel L96 GNSS, LCC-31, 14.0×9.6 mm, Chip-Antenne.
+
+    VERIFIZIERT 2026-07-05 gegen Quectel L96 Hardware Design V1.4, Fig. 21/22
+    (quectel.com/content/uploads/2024/02/Quectel_L96_Hardware_Design_V1.4-4.pdf):
+    - Seiten-Landpads 2.15×0.70, 13 je Laengsseite, Pitch 1.00 (Eck 1.15),
+      Reihenmitte-zu-Reihenmitte 12.15
+    - Stirnpads 27-31: 0.70×2.15, Pitch 1.00, mittig
+    - Lokal: Antenne oben (-y, padfrei), Stirnpads unten (Datenblatt 180°
+      gedreht) -> Pin 1 unten rechts, 1..13 rechts aufwaerts,
+      14..26 links abwaerts, 27..31 unten von rechts nach links
+    """
     fp = pcbnew.FOOTPRINT(None)
     fp.SetFPID(pcbnew.LIB_ID("aurabip", "Quectel_L96"))
-    fp.SetLibDescription("Quectel L96 GNSS, LCC-12, 14x15mm, integr. Patch-Antenne (VERIFY T-H2)")
+    fp.SetLibDescription("Quectel L96 GNSS LCC-31 (HW Design V1.4 Fig.22)")
     fp.SetKeywords("GNSS L96 Quectel MT3333")
     fp.SetAttributes(pcbnew.FP_SMD)
 
-    # Body: 14 breit (x -7..7), 15 hoch (y -7.5..7.5); Antenne oben (y<0)
-    pitch = 1.9
-    y0 = -0.75  # oberstes Pad der unteren Haelfte
-    for i in range(6):  # Pins 1..6 links, oben->unten
-        _l96_pad(fp, str(i + 1), -6.65, y0 + i * pitch)
-    for i in range(6):  # Pins 7..12 rechts, unten->oben
-        _l96_pad(fp, str(i + 7), 6.65, y0 + (5 - i) * pitch)
+    half_row = 12.15 / 2.0
+    # rechte Seite: Pin 1 unten (y +6.20), 1..12 Pitch 1.00, 12->13 Pitch 1.15
+    ys_right = [6.20 - i * 1.00 for i in range(12)] + [6.20 - 11.0 - 1.15]
+    for i, yy in enumerate(ys_right):
+        _l96_pad(fp, str(i + 1), half_row, yy, 2.15, 0.70)
+    # linke Seite: Pin 14 oben (y -5.95), 14->15 Pitch 1.15, dann 1.00
+    ys_left = [-5.95] + [-4.80 + i * 1.00 for i in range(12)]
+    for i, yy in enumerate(ys_left):
+        _l96_pad(fp, str(i + 14), -half_row, yy, 2.15, 0.70)
+    # Stirnseite unten: 27..31 von rechts (x+2.0) nach links
+    for i, xx in enumerate([2.0, 1.0, 0.0, -1.0, -2.0]):
+        _l96_pad(fp, str(i + 27), xx, 6.925, 0.70, 2.15)
 
     for (x1, y1, x2, y2, layer, w) in [
-        (-7.0, -7.5, 7.0, 7.5, pcbnew.F_Fab, 0.1),
-        (-7.3, -7.8, 7.3, 7.8, pcbnew.F_CrtYd, 0.05),
+        (-4.8, -7.0, 4.8, 7.0, pcbnew.F_Fab, 0.1),
+        (-7.4, -7.3, 7.4, 8.3, pcbnew.F_CrtYd, 0.05),
     ]:
         r = pcbnew.PCB_SHAPE(fp)
         r.SetShape(pcbnew.SHAPE_T_RECT)
@@ -75,52 +91,69 @@ def create_l96_footprint():
         r.SetLayer(layer); r.SetWidth(MM(w))
         fp.Add(r)
 
-    # Antennenbereich markieren (Silk)
+    # Antennenzone markieren (Silk, oben, padfreies Ende)
     ant = pcbnew.PCB_SHAPE(fp)
     ant.SetShape(pcbnew.SHAPE_T_RECT)
-    ant.SetStart(vec(-7.0, -7.5)); ant.SetEnd(vec(7.0, -2.0))
+    ant.SetStart(vec(-2.4, -7.0)); ant.SetEnd(vec(2.4, -2.5))
     ant.SetLayer(pcbnew.F_SilkS); ant.SetWidth(MM(0.12))
     fp.Add(ant)
 
-    marker = pcbnew.PCB_SHAPE(fp)
+    marker = pcbnew.PCB_SHAPE(fp)  # Pin 1 unten rechts
     marker.SetShape(pcbnew.SHAPE_T_CIRCLE)
-    marker.SetStart(vec(-7.6, -0.75)); marker.SetEnd(vec(-7.45, -0.75))
+    marker.SetStart(vec(8.0, 6.2)); marker.SetEnd(vec(8.15, 6.2))
     marker.SetLayer(pcbnew.F_SilkS); marker.SetWidth(MM(0.15))
     fp.Add(marker)
 
-    fp.Reference().SetPosition(vec(0, -8.6))
+    fp.Reference().SetPosition(vec(0, -8.1))
     fp.Reference().SetTextSize(pcbnew.VECTOR2I(MM(0.8), MM(0.8)))
-    fp.Value().SetPosition(vec(0, 8.6))
+    fp.Value().SetPosition(vec(0, 9.3))
     fp.Value().SetTextSize(pcbnew.VECTOR2I(MM(0.8), MM(0.8)))
 
     os.makedirs(LIB_FP, exist_ok=True)
     pcbnew.FootprintSave(LIB_FP, fp)
-    print("L96-Footprint gespeichert (VERIFY T-H2!)")
+    print("L96-Footprint gespeichert (HW Design V1.4 verifiziert)")
 
 
 def create_e22_footprint():
-    """Ebyte E22-900M22S (SX1262+TCXO+PA), 16×26 mm, 22 castellated Pads.
+    """Ebyte E22-900M22S (SX1262+TCXO+PA), 14×20 mm, 22 Stamp-Hole-Pads.
 
-    ⚠️ VERIFY T-H7: Padgeometrie, Pitch und Nummerierung gegen das
-    Ebyte-Datenblatt! Annahme: 11 Pads je Laengsseite, Pitch 2.2 mm,
-    Pin 1 links oben, gegen den Uhrzeigersinn (12..22 rechts unten->oben).
+    VERIFIZIERT 2026-07-05 gegen Ebyte User Manual v1.3 (2022-10-26,
+    https://www.cdebyte.com/pdf-down.aspx?id=1822) und Referenz-Footprint
+    github.com/candykingdom/homebrew.pretty/E22-900M22S.kicad_mod:
+    - Modul 14.0×20.0×3.0 mm, 11 Pads je 20-mm-Laengsseite
+    - Pitch 1.27 mm, zwischen Pin 3<->4 bzw. 19<->20 Luecke 5.588 mm
+    - PCB-Pad 1.68×0.81, Reihenmitte-zu-Reihenmitte 13.97 mm
+    - Top-View: Pin 1 unten RECHTS, 1..11 rechts aufsteigend,
+      12 oben links, 12..22 links absteigend; IPX-Buchse unten links
     """
     fp = pcbnew.FOOTPRINT(None)
     fp.SetFPID(pcbnew.LIB_ID("aurabip", "E22_900M22S"))
-    fp.SetLibDescription("Ebyte E22-900M22S SX1262-Modul (VERIFY T-H7)")
+    fp.SetLibDescription("Ebyte E22-900M22S SX1262, 14x20, Manual v1.3 verifiziert")
     fp.SetKeywords("LoRa SX1262 E22 FANET")
     fp.SetAttributes(pcbnew.FP_SMD)
 
-    pitch = 2.2
-    y0 = -pitch * 5  # 11 Pads symmetrisch um 0
-    for i in range(11):   # 1..11 links, oben -> unten
-        _smd_pad(fp, str(i + 1), -7.6, y0 + i * pitch, 1.6, 1.1)
-    for i in range(11):   # 12..22 rechts, unten -> oben
-        _smd_pad(fp, str(i + 12), 7.6, y0 + (10 - i) * pitch, 1.6, 1.1)
+    # Y-Kette ab Moduloberkante (y=-10): 2.00, dann 7x1.27, Luecke 5.588,
+    # 2x1.27, Rest 1.00 zur Unterkante. Pin 12 oben links ... Pin 22 unten links.
+    y_top = -10.0
+    ys = []
+    y = y_top + 2.0
+    for i in range(8):            # 8 Pads im oberen Block (12..19 links)
+        ys.append(y); y += 1.27
+    y = y - 1.27 + 5.588          # Luecke
+    for i in range(3):            # 3 Pads im unteren Block (20..22 links)
+        ys.append(y); y += 1.27
+    xr, xl = 13.97 / 2.0, -13.97 / 2.0
+
+    # links: 12 (oben) .. 22 (unten)
+    for i, yy in enumerate(ys):
+        _smd_pad(fp, str(12 + i), xl, yy, 1.68, 0.81)
+    # rechts: 11 (oben) .. 1 (unten)
+    for i, yy in enumerate(ys):
+        _smd_pad(fp, str(11 - i), xr, yy, 1.68, 0.81)
 
     for (x1, y1, x2, y2, layer, w) in [
-        (-8.0, -13.0, 8.0, 13.0, pcbnew.F_Fab, 0.1),
-        (-8.7, -13.3, 8.7, 13.3, pcbnew.F_CrtYd, 0.05),
+        (-7.0, -10.0, 7.0, 10.0, pcbnew.F_Fab, 0.1),
+        (-7.7, -10.3, 7.7, 10.3, pcbnew.F_CrtYd, 0.05),
     ]:
         r = pcbnew.PCB_SHAPE(fp)
         r.SetShape(pcbnew.SHAPE_T_RECT)
@@ -128,18 +161,19 @@ def create_e22_footprint():
         r.SetLayer(layer); r.SetWidth(MM(w))
         fp.Add(r)
 
+    # Pin-1-Marker unten rechts
     marker = pcbnew.PCB_SHAPE(fp)
     marker.SetShape(pcbnew.SHAPE_T_CIRCLE)
-    marker.SetStart(vec(-9.2, -11.0)); marker.SetEnd(vec(-9.05, -11.0))
+    marker.SetStart(vec(8.3, ys[-1])); marker.SetEnd(vec(8.45, ys[-1]))
     marker.SetLayer(pcbnew.F_SilkS); marker.SetWidth(MM(0.15))
     fp.Add(marker)
 
-    fp.Reference().SetPosition(vec(0, -14.1))
+    fp.Reference().SetPosition(vec(0, -11.1))
     fp.Reference().SetTextSize(pcbnew.VECTOR2I(MM(0.8), MM(0.8)))
-    fp.Value().SetPosition(vec(0, 14.1))
+    fp.Value().SetPosition(vec(0, 11.1))
     fp.Value().SetTextSize(pcbnew.VECTOR2I(MM(0.8), MM(0.8)))
     pcbnew.FootprintSave(LIB_FP, fp)
-    print("E22-Footprint gespeichert (VERIFY T-H7!)")
+    print("E22-Footprint gespeichert (Manual v1.3 verifiziert)")
 
 
 def _smd_pad(fp, num, x, y, w, h):
@@ -186,7 +220,7 @@ def create_esp32_compact_footprint():
     print("ESP32-Kompakt-Footprint gespeichert")
 
 
-def _l96_pad(fp, num, x, y):
+def _l96_pad(fp, num, x, y, w, h):
     pad = pcbnew.PAD(fp)
     pad.SetNumber(num)
     pad.SetShape(pcbnew.PAD_SHAPE_ROUNDRECT)
@@ -194,7 +228,7 @@ def _l96_pad(fp, num, x, y):
     pad.SetAttribute(pcbnew.PAD_ATTRIB_SMD)
     pad.SetLayerSet(pcbnew.PAD(fp).SMDMask())
     pad.SetPosition(vec(x, y))
-    pad.SetSize(pcbnew.VECTOR2I(MM(1.1), MM(0.9)))
+    pad.SetSize(pcbnew.VECTOR2I(MM(w), MM(h)))
     fp.Add(pad)
 
 
@@ -253,9 +287,16 @@ def load_netlist():
 BW, BH = 52.0, 52.0
 
 PLACEMENT = [
-    # GNSS oben, Patch-Antenne Richtung Oberkante
-    ("U5", None, "Quectel_L96",                                     18.0,  9.0,   0, "L96"),
-    ("C7", fp_lib("Capacitor_SMD"), "C_0402_1005Metric",            27.5, 15.0,  90, "100n"),
+    # GNSS oben, Chip-Antenne Richtung Oberkante (Quectel: mittig an
+    # die Kante, GND-Flaeche seitlich weiterfuehren)
+    ("U5", None, "Quectel_L96",                                     18.0,  8.1,   0, "L96"),
+    ("C7", fp_lib("Capacitor_SMD"), "C_0402_1005Metric",            26.5,  6.3,  90, "100n"),
+    ("C16", fp_lib("Capacitor_SMD"), "C_0603_1608Metric",           26.5,  9.5,  90, "10u"),
+    # RF-Bruecke direkt neben RF_OUT/RF_IN (Pads bei x~11.9, y 4.3/5.3)
+    ("R12", fp_lib("Resistor_SMD"), "R_0402_1005Metric",            10.0,  4.8,  90, "0R"),
+    # RXD1-Pegelteiler unterhalb des Moduls
+    ("R13", fp_lib("Resistor_SMD"), "R_0402_1005Metric",            13.5, 17.2,   0, "1k"),
+    ("R14", fp_lib("Resistor_SMD"), "R_0402_1005Metric",            16.5, 17.2,   0, "2k"),
 
     # ESP32-Modul links, Antenne zur linken Kante (rot 90: Antenne -> -x)
     ("U1", None, "ESP32-S3-MINI-1_compact",                         11.0, 26.0,  90, "ESP32-S3-MINI-1"),
@@ -271,7 +312,8 @@ PLACEMENT = [
            "Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad",   47.5, 25.0,   0, "SHT40"),
     ("C6", fp_lib("Capacitor_SMD"), "C_0402_1005Metric",            45.5, 25.0,  90, "100n"),
     # IMU bleibt auf dem Hauptboard (starr, thermisch unkritisch)
-    ("U3", fp_lib("Package_LGA"), "Bosch_LGA-14_3x2.5mm_P0.5mm",    26.5, 27.5,   0, "LSM6DSO32"),
+    ("U3", fp_lib("Package_LGA"), "LGA-14_3x2.5mm_P0.5mm_LayoutBorder3x4y",
+                                                                     26.5, 27.5,   0, "LSM6DSO32"),
     ("C5", fp_lib("Capacitor_SMD"), "C_0402_1005Metric",            29.0, 27.5,  90, "100n"),
     ("R3", fp_lib("Resistor_SMD"), "R_0402_1005Metric",             31.5, 26.0,  90, "4.7k"),
     ("R4", fp_lib("Resistor_SMD"), "R_0402_1005Metric",             31.5, 29.5,  90, "4.7k"),
@@ -289,7 +331,7 @@ PLACEMENT = [
 
     # Audio unten Mitte/rechts
     ("U6", fp_lib("Package_DFN_QFN"),
-           "QFN-16-1EP_3x3mm_P0.5mm_EP1.75x1.75mm",                 22.0, 38.0,   0, "MAX98357A"),
+           "TQFN-16-1EP_3x3mm_P0.5mm_EP1.23x1.23mm",                22.0, 38.0,   0, "MAX98357A"),
     ("R8", fp_lib("Resistor_SMD"), "R_0402_1005Metric",             17.5, 36.5,  90, "100k"),
     ("C8", fp_lib("Capacitor_SMD"), "C_0805_2012Metric",            26.5, 36.0,  90, "22u"),
     # links vom Amp: rechts davon liegt das E22-Padfeld der Rueckseite
@@ -471,6 +513,20 @@ def generate():
         ol.Append(MM(x), MM(y))
     board.Add(ko)
     print("Antennen-Keepout ESP32: x 0..6.0, y 17.7..34.3 (alle Cu-Lagen)")
+
+    # L96-Antennen-Keepout (Quectel HW Design: 4.8×7.3 unter der
+    # Chip-Antenne kupfer- und bauteilfrei)
+    ko2 = pcbnew.ZONE(board)
+    ko2.SetIsRuleArea(True)
+    ko2.SetDoNotAllowZoneFills(True)
+    ko2.SetDoNotAllowTracks(True)
+    ko2.SetDoNotAllowVias(True)
+    ko2.SetLayerSet(pcbnew.LSET.AllCuMask(4))
+    ol2 = ko2.Outline(); ol2.NewOutline()
+    for x, y in [(15.6, 0.0), (20.4, 0.0), (20.4, 8.4), (15.6, 8.4)]:
+        ol2.Append(MM(x), MM(y))
+    board.Add(ko2)
+    print("Antennen-Keepout L96: x 15.6..20.4, y 0..8.4 (alle Cu-Lagen)")
 
     # Zonen: GND auf F/In1/B, +3V3 auf In2 — Zonen meiden das Antennenfeld
     def add_zone(layer, netname, prio):

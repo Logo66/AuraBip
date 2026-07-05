@@ -83,18 +83,26 @@ def custom_symbols():
     """Definitionen der eigenen Symbole. Rueckgabe: {name: (text, pins, half_w)}."""
     defs = {}
 
-    # MAX98357A TQFN-16-EP — ⚠️ VERIFY T-H3 (Pinnummern gegen Datenblatt)
+    # MAX98357A TQFN-16 (T1633+4) — VERIFIZIERT gegen ADI-Datenblatt
+    # Rev 7 (2026-07-05, analog.com, Pin Config S.15):
+    # 1 DIN, 2 GAIN_SLOT, 3 GND, 4 SD_MODE, 5/6 NC, 7+8 VDD,
+    # 9 OUTP, 10 OUTN, 11 GND, 12/13 NC, 14 LRCLK, 15 GND, 16 BCLK,
+    # EP intern unverbunden (thermisch an GND-Flaeche).
+    # GAIN offen = 9 dB; SD_MODE > 1.4 V = linker Kanal.
     max_pins = [
-        ("2",  "BCLK",    "input",     "L", 0),
-        ("1",  "LRCLK",   "input",     "L", 1),
-        ("3",  "DIN",     "input",     "L", 2),
-        ("5",  "SD_MODE", "input",     "L", 3),
-        ("4",  "GAIN",    "input",     "L", 4),
-        ("13", "VDD",     "power_in",  "R", 0),
-        ("9",  "OUTP",    "output",    "R", 2),
-        ("11", "OUTN",    "output",    "R", 3),
-        ("8",  "GND",     "power_in",  "R", 5),
-        ("17", "EP",      "power_in",  "R", 6),
+        ("16", "BCLK",    "input",     "L", 0),
+        ("14", "LRCLK",   "input",     "L", 1),
+        ("1",  "DIN",     "input",     "L", 2),
+        ("4",  "SD_MODE", "input",     "L", 3),
+        ("2",  "GAIN",    "input",     "L", 4),
+        ("7",  "VDD",     "power_in",  "R", 0),
+        ("8",  "VDD2",    "power_in",  "R", 1),
+        ("9",  "OUTP",    "output",    "R", 3),
+        ("10", "OUTN",    "output",    "R", 4),
+        ("3",  "GND",     "power_in",  "R", 6),
+        ("11", "GND2",    "power_in",  "R", 7),
+        ("15", "GND3",    "power_in",  "R", 8),
+        ("17", "EP",      "passive",   "R", 9),
     ]
     defs["MAX98357A"] = (make_box_symbol("MAX98357A", max_pins), max_pins, 10.16)
 
@@ -108,41 +116,74 @@ def custom_symbols():
     ]
     defs["MCP73831"] = (make_box_symbol("MCP73831", mcp_pins, half_w=7.62), mcp_pins, 7.62)
 
-    # Quectel L96 (GNSS, integrierte Antenne) — ⚠️ VERIFY T-H2 (Padout!)
+    # Quectel L96 (GNSS, Chip-Antenne) — VERIFIZIERT gegen Quectel
+    # L96 Hardware Design V1.4 (2026-07-05, Pin-Tabelle S.15-17):
+    # LCC-31. WICHTIG: interne Antenne braucht externe Bruecke
+    # RF_OUT(16) -> RF_IN(17) (0R, so kurz wie moeglich)!
+    # RXD1 VIHmax 3.1V -> Pegelteiler vom 3.3V-ESP noetig.
     l96_pins = [
-        ("8",  "VCC",      "power_in", "L", 0),
-        ("6",  "V_BCKP",   "power_in", "L", 1),
-        ("4",  "RESET_N",  "input",    "L", 3),
-        ("2",  "FORCE_ON", "input",    "L", 4),
-        ("9",  "TXD",      "output",   "R", 0),
-        ("10", "RXD",      "input",    "R", 1),
-        ("5",  "1PPS",     "output",   "R", 3),
-        ("11", "EX_ANT",   "passive",  "R", 4),
-        ("1",  "GND",      "power_in", "R", 6),
-        ("3",  "GND2",     "power_in", "R", 7),
-        ("7",  "GND3",     "power_in", "R", 8),
-        ("12", "GND4",     "power_in", "R", 9),
+        ("9",  "VCC",      "power_in", "L", 0),
+        ("8",  "V_BCKP",   "power_in", "L", 1),
+        ("23", "RESET",    "input",    "L", 3),
+        ("28", "FORCE_ON", "input",    "L", 4),
+        ("7",  "EXTINT0",  "input",    "L", 5),
+        ("3",  "SDA",      "bidirectional", "L", 7),
+        ("6",  "SCL",      "input",    "L", 8),
+        ("1",  "NC",       "no_connect", "L", 10),
+        ("25", "TXD1",     "output",   "R", 0),
+        ("26", "RXD1",     "input",    "R", 1),
+        ("29", "TIMEPULSE","output",   "R", 3),
+        ("2",  "3D_FIX",   "output",   "R", 4),
+        ("20", "JAM_IND",  "output",   "R", 5),
+        ("24", "GEO_FENCE","output",   "R", 6),
+        ("30", "ANTON",    "output",   "R", 7),
+        ("16", "RF_OUT",   "passive",  "R", 9),
+        ("17", "RF_IN",    "passive",  "R", 10),
+        ("4",  "GND",      "power_in", "L", 12),
+        ("5",  "GND2",     "power_in", "L", 13),
+        ("10", "GND3",     "power_in", "L", 14),
+        ("11", "GND4",     "power_in", "L", 15),
+        ("12", "GND5",     "power_in", "L", 16),
+        ("13", "GND6",     "power_in", "L", 17),
+        ("14", "GND7",     "power_in", "R", 12),
+        ("15", "GND8",     "power_in", "R", 13),
+        ("18", "GND9",     "power_in", "R", 14),
+        ("19", "GND10",    "power_in", "R", 15),
+        ("21", "GND11",    "power_in", "R", 16),
+        ("22", "GND12",    "power_in", "R", 17),
+        ("27", "GND13",    "power_in", "L", 19),
+        ("31", "GND14",    "power_in", "R", 19),
     ]
     defs["L96"] = (make_box_symbol("L96", l96_pins), l96_pins, 10.16)
 
-    # Ebyte E22-900M22S (SX1262+TCXO+PA) — ⚠️ VERIFY T-H7 (Pinnummern!)
-    # Annahme: 22 Pads, Nummerierung nach Ebyte-Datenblatt-Konvention.
+    # Ebyte E22-900M22S — VERIFIZIERT gegen Ebyte User Manual v1.3
+    # (2026-07-05, cdebyte.com/pdf-down.aspx?id=1822):
+    # 1-5 GND, 6 RXEN, 7 TXEN, 8 DIO2, 9 VCC, 10-12 GND, 13 DIO1,
+    # 14 BUSY, 15 NRST, 16 MISO, 17 MOSI, 18 SCK, 19 NSS, 20 GND,
+    # 21 ANT, 22 GND. VCC max 3.7V!
     e22_pins = [
-        ("11", "VCC",  "power_in", "L", 0),
-        ("10", "NRST", "input",    "L", 2),
+        ("9",  "VCC",  "power_in", "L", 0),
+        ("15", "NRST", "input",    "L", 2),
         ("19", "NSS",  "input",    "L", 4),
         ("18", "SCK",  "input",    "L", 5),
         ("17", "MOSI", "input",    "L", 6),
         ("16", "MISO", "output",   "L", 7),
-        ("15", "BUSY", "output",   "L", 9),
-        ("14", "DIO1", "output",   "L", 10),
-        ("6",  "TXEN", "input",    "R", 4),
-        ("7",  "RXEN", "input",    "R", 5),
+        ("14", "BUSY", "output",   "L", 9),
+        ("13", "DIO1", "output",   "L", 10),
+        ("7",  "TXEN", "input",    "R", 4),
+        ("6",  "RXEN", "input",    "R", 5),
+        ("8",  "DIO2", "output",   "R", 6),
+        ("21", "ANT",  "passive",  "R", 0),
         ("1",  "GND",  "power_in", "R", 8),
-        ("12", "GND2", "power_in", "R", 9),
-        ("20", "GND3", "power_in", "R", 10),
-        ("3",  "ANT",  "passive",  "R", 0),
-        ("2",  "GND4", "power_in", "R", 1),
+        ("2",  "GND2", "power_in", "R", 9),
+        ("3",  "GND3", "power_in", "R", 10),
+        ("4",  "GND4", "power_in", "L", 12),
+        ("5",  "GND5", "power_in", "L", 13),
+        ("10", "GND6", "power_in", "L", 14),
+        ("11", "GND7", "power_in", "R", 12),
+        ("12", "GND8", "power_in", "R", 13),
+        ("20", "GND9", "power_in", "R", 14),
+        ("22", "GND10", "power_in", "L", 15),
     ]
     defs["E22_900M22S"] = (make_box_symbol("E22_900M22S", e22_pins), e22_pins, 10.16)
 
@@ -452,7 +493,10 @@ def generate():
     place("C4", "Device:C", "100n", "Capacitor_SMD:C_0402_1005Metric", 285, 130,
           {"1": V3, "2": GND})
 
-    place("U3", "aurabip:LSM6DSO32", "LSM6DSO32", "Package_LGA:Bosch_LGA-14_3x2.5mm_P0.5mm",
+    # ST-Footprint (LayoutBorder3x4y): Padzentren exakt auf ST-Massen,
+    # Bosch-Variante waere 0.1 mm nach aussen versetzt (verifiziert 2026-07-05)
+    place("U3", "aurabip:LSM6DSO32", "LSM6DSO32",
+          "Package_LGA:LGA-14_3x2.5mm_P0.5mm_LayoutBorder3x4y",
           260, 170, {
               "8": V3, "5": V3, "12": V3, "1": GND,
               "13": "I2C_SCL", "14": "I2C_SDA", "4": "IMU_INT1",
@@ -488,23 +532,35 @@ def generate():
     # ================= GNSS (rechts unten) =================
     place("U5", "aurabip:L96", "Quectel L96", "aurabip:Quectel_L96",
           260, 250, {
-              "8": V3, "6": V3,
-              "9": "GNSS_TXD", "10": "GNSS_RXD",
-              "4": None, "2": None, "5": None, "11": None,
-              "1": GND, "3": GND, "7": GND, "12": GND,
+              "9": V3, "8": V3,  # V_BCKP an 3V3: Kaltstart nach Aus, bewusst
+              "25": "GNSS_TXD", "26": "GNSS_RXD_DIV",
+              "16": "L96_RFOUT", "17": "L96_RFIN",
+              **{str(n): GND for n in (4, 5, 10, 11, 12, 13, 14, 15,
+                                        18, 19, 21, 22, 27, 31)},
           })
     place("C7", "Device:C", "100n", "Capacitor_SMD:C_0402_1005Metric", 295, 250,
           {"1": V3, "2": GND})
+    place("C16", "Device:C", "10u", "Capacitor_SMD:C_0603_1608Metric", 302.5, 250,
+          {"1": V3, "2": GND})
+    # Interne Antenne: RF_OUT -> RF_IN per 0R-Bruecke (Quectel HW Design,
+    # ohne diese Bruecke KEIN GPS-Empfang!)
+    place("R12", "Device:R", "0R", "Resistor_SMD:R_0402_1005Metric", 310, 250,
+          {"1": "L96_RFOUT", "2": "L96_RFIN"})
+    # RXD1-Pegelteiler: ESP-TX 3.3V -> max 3.1V am L96 (VIH-Limit)
+    place("R13", "Device:R", "1k", "Resistor_SMD:R_0402_1005Metric", 318, 250,
+          {"1": "GNSS_RXD", "2": "GNSS_RXD_DIV"})
+    place("R14", "Device:R", "2k", "Resistor_SMD:R_0402_1005Metric", 326, 250,
+          {"1": "GNSS_RXD_DIV", "2": GND})
 
     # ================= FANET/LoRa (E22-900M22S) =================
     place("U10", "aurabip:E22_900M22S", "E22-900M22S", "aurabip:E22_900M22S",
           335, 250, {
-              "11": V3, "10": "LORA_RST",
+              "9": V3, "15": "LORA_RST",
               "19": "LORA_NSS", "18": "SPI2_SCK", "17": "SPI2_MOSI",
-              "16": "SPI2_MISO", "15": "LORA_BUSY", "14": "LORA_DIO1",
-              "6": "LORA_TXEN", "7": "LORA_RXEN",
-              "3": "LORA_ANT",
-              "1": GND, "2": GND, "12": GND, "20": GND,
+              "16": "SPI2_MISO", "14": "LORA_BUSY", "13": "LORA_DIO1",
+              "7": "LORA_TXEN", "6": "LORA_RXEN", "8": None,
+              "21": "LORA_ANT",
+              **{str(n): GND for n in (1, 2, 3, 4, 5, 10, 11, 12, 20, 22)},
           })
     place("C14", "Device:C", "100n", "Capacitor_SMD:C_0402_1005Metric", 360, 235,
           {"1": V3, "2": GND})
@@ -517,11 +573,12 @@ def generate():
 
     # ================= Audio =================
     place("U6", "aurabip:MAX98357A", "MAX98357A",
-          "Package_DFN_QFN:QFN-16-1EP_3x3mm_P0.5mm_EP1.75x1.75mm", 150, 250, {
-              "2": "I2S_BCLK", "1": "I2S_LRCK", "3": "I2S_DOUT",
-              "5": "AMP_SD", "4": None,
-              "13": VBAT, "9": "SPK_P", "11": "SPK_N",
-              "8": GND, "17": GND,
+          "Package_DFN_QFN:TQFN-16-1EP_3x3mm_P0.5mm_EP1.23x1.23mm", 150, 250, {
+              "16": "I2S_BCLK", "14": "I2S_LRCK", "1": "I2S_DOUT",
+              "4": "AMP_SD", "2": None,  # GAIN offen = 9 dB
+              "7": VBAT, "8": VBAT,
+              "9": "SPK_P", "10": "SPK_N",
+              "3": GND, "11": GND, "15": GND, "17": GND,
           })
     place("R8", "Device:R", "100k", "Resistor_SMD:R_0402_1005Metric", 120, 270,
           {"1": V3, "2": "AMP_SD"})
