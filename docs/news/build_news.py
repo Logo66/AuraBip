@@ -107,8 +107,7 @@ td{font-variant-numeric:tabular-nums}
     </figure>
     <figure class="card">
       <img src="data:image/jpeg;base64,__BOT__" alt="Platine Rueckseite">
-      <figcaption>R&uuml;ckseite: FANET-Funkmodul und Antennenanschluss &mdash;
-      durch eine durchgehende Masselage geschirmt</figcaption>
+      <figcaption>R&uuml;ckseite: FANET-Funkmodul &mdash; die Antenne steckt direkt auf dessen IPX-Buchse (null Zentimeter Board-HF), durchgehende Masselage als Schirm</figcaption>
     </figure>
   </div>
 

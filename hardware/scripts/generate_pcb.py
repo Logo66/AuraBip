@@ -389,8 +389,6 @@ PLACEMENT = [
 # Koordinaten in Vorderseiten-Sicht; Flip macht der Generator.
 PLACEMENT_BACK = [
     ("U10", None, "E22_900M22S",                                    18.0, 30.0,   0, "E22-900M22S"),
-    ("J5",  fp_lib("Connector_Coaxial"),
-            "U.FL_Hirose_U.FL-R-SMT-1_Vertical",                    22.0, 47.5,   0, "u.FL 868"),
     ("C14", fp_lib("Capacitor_SMD"), "C_0402_1005Metric",           10.5, 46.0,  90, "100n"),
     ("C15", fp_lib("Capacitor_SMD"), "C_0603_1608Metric",           13.0, 46.0,  90, "10u"),
 ]

@@ -294,7 +294,6 @@ def generate():
         "Regulator_Linear:AP2112K-3.3": ("Regulator_Linear", "AP2112K-3.3"),
         "Power_Protection:USBLC6-2SC6": ("Power_Protection", "USBLC6-2SC6"),
         "Connector:USB_C_Receptacle_USB2.0_16P": ("Connector", "USB_C_Receptacle_USB2.0_16P"),
-        "Connector:Conn_Coaxial": ("Connector", "Conn_Coaxial"),
         "Connector_Generic:Conn_01x01": ("Connector_Generic", "Conn_01x01"),
         "Connector_Generic:Conn_01x02": ("Connector_Generic", "Conn_01x02"),
         "Connector_Generic:Conn_01x04": ("Connector_Generic", "Conn_01x04"),
@@ -562,17 +561,13 @@ def generate():
               "19": "LORA_NSS", "18": "SPI2_SCK", "17": "SPI2_MOSI",
               "16": "SPI2_MISO", "14": "LORA_BUSY", "13": "LORA_DIO1",
               "7": "LORA_TXEN", "6": "LORA_RXEN", "8": None,
-              "21": "LORA_ANT",
+              "21": None,  # ANT-Pad frei: Antenne steckt direkt auf die Modul-IPX-Buchse
               **{str(n): GND for n in (1, 2, 3, 4, 5, 10, 11, 12, 20, 22)},
           })
     place("C14", "Device:C", "100n", "Capacitor_SMD:C_0402_1005Metric", 360, 235,
           {"1": V3, "2": GND})
     place("C15", "Device:C", "10u", "Capacitor_SMD:C_0603_1608Metric", 370, 235,
           {"1": V3, "2": GND})
-    place("J5", "Connector:Conn_Coaxial", "u.FL 868",
-          "Connector_Coaxial:U.FL_Hirose_U.FL-R-SMT-1_Vertical", 370, 250, {
-              "1": "LORA_ANT", "2": GND,
-          })
 
     # ================= Audio =================
     place("U6", "aurabip:MAX98357A", "MAX98357A",
