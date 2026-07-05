@@ -1,2 +1,19 @@
 .pio/
 .vscode/
+
+# KiCad-Artefakte
+hardware/project/*-backups/
+hardware/project/fp-info-cache
+hardware/project/*.kicad_prl
+hardware/project/erc.rpt
+hardware/project/aurabip.net
+
+# Route-Pipeline: Werkzeug + Zwischenstaende (freerouting.jar: von
+# github.com/freerouting/freerouting Releases laden, GPL-Tool, nicht einchecken)
+hardware/route/freerouting.jar
+hardware/route/*.dsn
+hardware/route/*.ses
+hardware/route/*.ses.bak
+hardware/route/*.log
+hardware/route/*.rpt
+hardware/route/aurabip_fanout.kicad_pcb

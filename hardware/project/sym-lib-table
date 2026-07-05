@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "aurabip")(type "KiCad")(uri "${KIPRJMOD}/../lib/aurabip.kicad_sym")(options "")(descr "AuraBip eigene Symbole"))
+)
