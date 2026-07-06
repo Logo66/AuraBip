@@ -19,3 +19,5 @@ hardware/route/*.rpt
 hardware/route/aurabip_fanout.kicad_pcb
 hardware/project/.history/
 hardware/route/freerouting-*.jar
+
+__pycache__/

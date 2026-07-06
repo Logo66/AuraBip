@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "C:\\Users\\Ivo\\AuraBip\\hardware\\project\\aurabip.kicad_sch")
-		(date "2026-07-06T08:28:59")
+		(date "2026-07-06T21:22:08")
 		(tool "Eeschema 10.0.1")
 		(sheet
 			(number "1")
