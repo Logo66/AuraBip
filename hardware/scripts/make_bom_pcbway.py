@@ -17,28 +17,27 @@ KICAD_CLI = r"C:\Program Files\KiCad\10.0\bin\kicad-cli.exe"
 SCH = os.path.join(HW, "project", "aurabip.kicad_sch")
 OUT = os.path.join(HW, "production", "aurabip-bom.csv")
 
-# Ref -> (MPN, Hersteller, Beschreibung)
+# Ref -> (MPN, Hersteller, Beschreibung) — englisch, PCBWay liest das
 MPN = {
-    "U1":  ("ESP32-S3-MINI-1-N8", "Espressif", "WiFi/BLE-Modul, 8MB Flash"),
-    "U2":  ("BMP581", "Bosch", "Barometer LGA-10 (VERIFY T-H1)"),
-    "U3":  ("LSM6DSO32XTR", "ST", "IMU +/-32g LGA-14 (VERIFY T-H4)"),
-    "U4":  ("SHT40-AD1B-R2", "Sensirion", "Temp/Feuchte DFN-4"),
-    "U5":  ("L96-M33", "Quectel", "GNSS-Modul, integr. Antenne (VERIFY T-H2)"),
-    "U6":  ("MAX98357AETE+T", "Analog Devices", "I2S-Amp TQFN-16 (VERIFY T-H3)"),
-    "U7":  ("MCP73831T-2ACI/OT", "Microchip", "LiPo-Lader SOT-23-5"),
+    "U1":  ("ESP32-S3-MINI-1-N8", "Espressif", "WiFi/BLE module, 8MB flash"),
+    "U2":  ("BMP581", "Bosch", "Barometric pressure sensor LGA-10 - open port, do NOT wash"),
+    "U3":  ("LSM6DSO32XTR", "ST", "IMU +/-32g LGA-14"),
+    "U4":  ("SHT40-AD1B-R2", "Sensirion", "Temp/humidity sensor DFN-4"),
+    "U5":  ("L96-M33", "Quectel", "GNSS module with integrated antenna"),
+    "U6":  ("MAX98357AETE+T", "Analog Devices", "I2S Class-D amplifier TQFN-16"),
+    "U7":  ("MCP73831T-2ACI/OT", "Microchip", "LiPo charger SOT-23-5"),
     "U8":  ("ME6217C33M5G", "MicrOne", "LDO 3.3V 800mA SOT-23-5"),
-    "U9":  ("USBLC6-2SC6", "ST", "USB-ESD SOT-23-6"),
-    "U10": ("E22-900M22S", "Ebyte", "SX1262-LoRa-Modul, Rueckseite, Handloetung (VERIFY T-H7)"),
-    "J1":  ("TYPE-C-31-M-12", "HRO", "USB-C 16P"),
-    "J2":  ("S2B-PH-K-S", "JST", "Akku-Buchse PH 2.0 2P"),
-    "J3":  ("S2B-PH-K-S", "JST", "Lautsprecher-Buchse PH 2.0 2P"),
-    "J4":  ("B8B-PH-K-S", "JST", "OLED-Buchse PH 2.0 8P vertikal"),
-    "J5":  ("U.FL-R-SMT-1(10)", "Hirose", "u.FL-Antennenbuchse, Rueckseite"),
-    "SW1": ("MSK-12C02", "Shouhan", "Schiebeschalter (Footprint PCM12, VERIFY)"),
-    "SW2": ("KMR221GLFS", "C&K", "Taster KMR2 RESET"),
-    "SW3": ("KMR221GLFS", "C&K", "Taster KMR2 BOOT"),
-    "D1":  ("19-217/GHC-YR1S2/3T", "Everlight", "LED gruen 0603"),
-    "D2":  ("19-217/BHC-ZL1M2RY/3T", "Everlight", "LED blau 0603"),
+    "U9":  ("USBLC6-2SC6", "ST", "USB ESD protection SOT-23-6"),
+    "U10": ("E22-900M22S", "Ebyte", "SX1262 LoRa module, stamp holes, bottom side"),
+    "J1":  ("TYPE-C-31-M-12", "HRO", "USB-C receptacle 16P"),
+    "J2":  ("S2B-PH-K-S", "JST", "Battery connector PH 2.0 2P, THT"),
+    "J3":  ("S2B-PH-K-S", "JST", "Speaker connector PH 2.0 2P, THT"),
+    "J4":  ("B8B-PH-K-S", "JST", "OLED connector PH 2.0 8P vertical, THT"),
+    "SW1": ("MSK-12C02", "Shouhan", "Slide switch"),
+    "SW2": ("KMR221GLFS", "C&K", "Tactile switch RESET"),
+    "SW3": ("KMR221GLFS", "C&K", "Tactile switch BOOT"),
+    "D1":  ("19-217/GHC-YR1S2/3T", "Everlight", "LED green 0603"),
+    "D2":  ("19-217/BHC-ZL1M2RY/3T", "Everlight", "LED blue 0603"),
 }
 
 # Wert-basierte Zuordnung fuer Passiva (alle 0402/0603/0805 Basic Parts)
