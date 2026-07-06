@@ -42,8 +42,9 @@ MPN = {
 }
 
 # Wert-basierte Zuordnung fuer Passiva (alle 0402/0603/0805 Basic Parts)
+# Englische Spec-Beschreibungen — PCBWay matcht Passive darueber
 PASSIVE_DESC = {
-    "R": "Widerstand", "C": "Kondensator",
+    "R": "Chip Resistor 1%", "C": "MLCC Capacitor X7R 16V",
 }
 
 

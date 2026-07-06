@@ -1,25 +1,25 @@
 ﻿Designator,Qty,MPN,Manufacturer,Description,Footprint,Side
-"C1,C11,C12,C4,C5,C6,C7,C9",8,,,Kondensator 100n C_0402_1005Metric,C_0402_1005Metric,Top
-C10,1,,,Kondensator 1u C_0402_1005Metric,C_0402_1005Metric,Top
-C13,1,,,Kondensator 4.7u C_0603_1608Metric,C_0603_1608Metric,Top
-C14,1,,,Kondensator 100n C_0402_1005Metric,C_0402_1005Metric,Bottom
-C15,1,,,Kondensator 10u C_0603_1608Metric,C_0603_1608Metric,Bottom
-"C16,C2,C3",3,,,Kondensator 10u C_0603_1608Metric,C_0603_1608Metric,Top
-C8,1,,,Kondensator 22u C_0805_2012Metric,C_0805_2012Metric,Top
+"C1,C11,C12,C4,C5,C6,C7,C9",8,,,MLCC Capacitor X7R 16V 100n C_0402_1005Metric,C_0402_1005Metric,Top
+C10,1,,,MLCC Capacitor X7R 16V 1u C_0402_1005Metric,C_0402_1005Metric,Top
+C13,1,,,MLCC Capacitor X7R 16V 4.7u C_0603_1608Metric,C_0603_1608Metric,Top
+C14,1,,,MLCC Capacitor X7R 16V 100n C_0402_1005Metric,C_0402_1005Metric,Bottom
+C15,1,,,MLCC Capacitor X7R 16V 10u C_0603_1608Metric,C_0603_1608Metric,Bottom
+"C16,C2,C3",3,,,MLCC Capacitor X7R 16V 10u C_0603_1608Metric,C_0603_1608Metric,Top
+C8,1,,,MLCC Capacitor X7R 16V 22u C_0805_2012Metric,C_0805_2012Metric,Top
 D1,1,19-217/GHC-YR1S2/3T,Everlight,LED gruen 0603,LED_0603_1608Metric,Top
 D2,1,19-217/BHC-ZL1M2RY/3T,Everlight,LED blau 0603,LED_0603_1608Metric,Top
 J1,1,TYPE-C-31-M-12,HRO,USB-C 16P,USB_C_Receptacle_HRO_TYPE-C-31-M-12,Top
 J2,1,S2B-PH-K-S,JST,Akku-Buchse PH 2.0 2P,JST_PH_S2B-PH-K_1x02_P2.00mm_Horizontal,Top
 J3,1,S2B-PH-K-S,JST,Lautsprecher-Buchse PH 2.0 2P,JST_PH_S2B-PH-K_1x02_P2.00mm_Horizontal,Top
 J4,1,B8B-PH-K-S,JST,OLED-Buchse PH 2.0 8P vertikal,JST_PH_B8B-PH-K_1x08_P2.00mm_Vertical,Top
-"R1,R2",2,,,Widerstand 5.1k R_0402_1005Metric,R_0402_1005Metric,Top
-"R11,R14",2,,,Widerstand 2k R_0402_1005Metric,R_0402_1005Metric,Top
-R12,1,,,Widerstand 0R R_0402_1005Metric,R_0402_1005Metric,Top
-"R3,R4",2,,,Widerstand 4.7k R_0402_1005Metric,R_0402_1005Metric,Top
-R5,1,,,Widerstand 10k R_0402_1005Metric,R_0402_1005Metric,Top
-"R13,R6,R7",3,,,Widerstand 1k R_0402_1005Metric,R_0402_1005Metric,Top
-R8,1,,,Widerstand 100k R_0402_1005Metric,R_0402_1005Metric,Top
-"R10,R9",2,,,Widerstand 1M R_0402_1005Metric,R_0402_1005Metric,Top
+"R1,R2",2,,,Chip Resistor 1% 5.1k R_0402_1005Metric,R_0402_1005Metric,Top
+"R11,R14",2,,,Chip Resistor 1% 2k R_0402_1005Metric,R_0402_1005Metric,Top
+R12,1,,,Chip Resistor 1% 0R R_0402_1005Metric,R_0402_1005Metric,Top
+"R3,R4",2,,,Chip Resistor 1% 4.7k R_0402_1005Metric,R_0402_1005Metric,Top
+R5,1,,,Chip Resistor 1% 10k R_0402_1005Metric,R_0402_1005Metric,Top
+"R13,R6,R7",3,,,Chip Resistor 1% 1k R_0402_1005Metric,R_0402_1005Metric,Top
+R8,1,,,Chip Resistor 1% 100k R_0402_1005Metric,R_0402_1005Metric,Top
+"R10,R9",2,,,Chip Resistor 1% 1M R_0402_1005Metric,R_0402_1005Metric,Top
 SW1,1,MSK-12C02,Shouhan,"Schiebeschalter (Footprint PCM12, VERIFY)",SW_SPDT_PCM12,Top
 SW2,1,KMR221GLFS,C&K,Taster KMR2 RESET,SW_Push_1P1T_NO_CK_KMR2,Top
 SW3,1,KMR221GLFS,C&K,Taster KMR2 BOOT,SW_Push_1P1T_NO_CK_KMR2,Top
