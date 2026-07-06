@@ -84,7 +84,7 @@ td{font-variant-numeric:tabular-nums}
     <tr><th>Ton &amp; Sprache</th><td>Class-D-Verst&auml;rker mit 28-mm-Lautsprecher in
       geschlossener Akustikkammer mit Reflexkanal &mdash; Varioton und Sprachansagen,
       h&ouml;rbar auch im Fahrtwind</td></tr>
-    <tr><th>Anbindung</th><td>Bluetooth zu XCTrack/XCSoar (LK8EX1 + NMEA), USB-C zum Laden</td></tr>
+    <tr><th>Anbindung</th><td><b>Buddy&thinsp;Link</b> &mdash; die direkte Verbindung ins Flight-Buddy-&Ouml;kosystem (App, Live-Daten). Dazu Bluetooth zu XCTrack/XCSoar (LK8EX1 + NMEA) und USB-C zum Laden</td></tr>
     <tr><th>Display (Variante vision)</th><td>1.32&Prime;-OLED, 128&thinsp;&times;&thinsp;96,
       16 Graustufen &mdash; im Deckel, per Kabel angebunden</td></tr>
     <tr><th>Sensor-Insel</th><td>Druck- und Klimasensor sitzen auf einer
@@ -130,11 +130,11 @@ td{font-variant-numeric:tabular-nums}
     <li class="done"><span class="badge">Fertig</span><div><b>Geh&auml;use konstruiert</b>
       <span class="det">Verschraubt, abgedichtet, mit Akustikkammer &mdash; zwei
       Varianten (mit/ohne Display)</span></div></li>
-    <li class="open"><span class="badge">L&auml;uft</span><div><b>Letzte Leiterbahnen</b>
-      <span class="det">&gt;&thinsp;90&thinsp;% geroutet; die letzten Verbindungen
-      werden von Hand gelegt</span></div></li>
+    <li class="done"><span class="badge">Fertig</span><div><b>Routing abgeschlossen</b>
+      <span class="det">Design-Regel-Pr&uuml;fung bestanden: 0 Fehler, alle Netze
+      verbunden</span></div></li>
     <li class="open"><span class="badge">N&auml;chster Schritt</span><div><b>Prototypen-Charge</b>
-      <span class="det">Fertigung &amp; Best&uuml;ckung bei PCBWay, danach Feldtest:
+      <span class="det">Fertigung &amp; Best&uuml;ckung extern, danach Feldtest:
       FANET-Reichweite, GPS-Empfang, Klang</span></div></li>
     <li class="open"><span class="badge">Geplant</span><div><b>CE/Funk-Konformit&auml;t</b>
       <span class="det">Pr&uuml;fung mit vorzertifizierten Funkmodulen, vor dem
