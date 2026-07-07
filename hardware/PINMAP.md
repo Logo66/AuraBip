@@ -11,7 +11,7 @@
 | 2 | LED_STATUS | Status-LED (blau) | aktiv high |
 | 4 | I2S_BCLK | MAX98357A BCLK | |
 | 5 | I2S_LRCK | MAX98357A LRC | |
-| 6 | I2S_DOUT | MAX98357A DIN | |
+| 47 | I2S_DOUT | MAX98357A DIN | Routing-Umzug 2026-07-06: von IO6 auf IO47 verlegt |
 | 7 | AMP_SD | MAX98357A SD_MODE | high = an (mono L+R/2); 100k-Pullup an 3V3 |
 | 8 | I2C_SDA | Sensorbus + OLED | 4.7k-Pullup |
 | 9 | I2C_SCL | Sensorbus + OLED | 4.7k-Pullup |
@@ -37,11 +37,12 @@
 Display: 1.5" 128×128 SSD1327 über SPI (U8g2: `U8G2_SSD1327_WS_128X128` o. ä.,
 Controller nach Lieferung verifizieren, T-H9). I2C-Bus bleibt nur für Sensorik.
 
-Frei/Reserve: 38–48 → 4 Testpads (TP1–TP4: 38, 40, 41, 42).
+Frei/Reserve: 6, 38–46, 48 → 4 Testpads (TP1–TP4: 38, 40, 41, 42).
+(IO6 seit Routing-Umzug 2026-07-06 frei, I2S_DOUT liegt auf IO47.)
 
 **config.h-Änderungen für Serien-Board** (gegenüber Heltec-Prototyp):
 `PIN_I2C_SDA 8, PIN_I2C_SCL 9, PIN_GNSS_RX 17, PIN_GNSS_TX 18,
-PIN_I2S_BCLK 4, PIN_I2S_LRCK 5, PIN_I2S_DOUT 6` + neu `PIN_AMP_SD 7,
+PIN_I2S_BCLK 4, PIN_I2S_LRCK 5, PIN_I2S_DOUT 47` + neu `PIN_AMP_SD 7,
 PIN_VBAT_ADC 1, PIN_LED 2, PIN_BTN 0`. OLED auf demselben Bus (0x3C),
 kein Vext, kein separater OLED-Bus.
 
@@ -85,7 +86,7 @@ USB-C 5V ──┬── MCP73831 ──── VBAT ──┬── JST-PH Akku 
 | ESP_EN | U1.EN ← 10k→3V3, 1µF→GND, SW2→GND |
 | BTN_BOOT | U1.IO0 ← SW3→GND (interner Pullup) |
 | I2C_SDA/SCL | s. oben, 4.7k→3V3 |
-| I2S_BCLK/LRCK/DOUT | U1.IO4/5/6 → U6.BCLK/LRC/DIN |
+| I2S_BCLK/LRCK/DOUT | U1.IO4/5/47 → U6.BCLK/LRC/DIN (DOUT: Routing-Umzug 2026-07-06, IO6→IO47) |
 | AMP_SD | U1.IO7 → U6.SD_MODE, 100k→3V3 |
 | AMP_OUTP/OUTN | U6.OUT+/OUT− → J3 (Lautsprecher) |
 | IMU_INT1 | U3.INT1 → U1.IO10 |

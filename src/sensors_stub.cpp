@@ -6,10 +6,12 @@
 // leichter Sinus-Welle (~±0.5 m/s Vario zum Testen von Display/BLE/Ton),
 // Accel = 1 g ruhend, Temp = 15 °C. T2 ersetzt diese Datei komplett.
 
+#ifndef BOARD_SERIES
 #include <Arduino.h>
 #include <Wire.h>
 #include <math.h>
 #include "config.h"
+#include "sensors.h"
 
 namespace sensors {
 
@@ -47,4 +49,9 @@ float readTempC() {
   return 15.0f;
 }
 
+float readHumidity() {
+  return 50.0f;
+}
+
 } // namespace sensors
+#endif // !BOARD_SERIES

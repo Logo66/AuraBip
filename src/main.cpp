@@ -3,11 +3,12 @@
 //
 // Tasks:
 //   Core 1: Sensorik (IMU 200 Hz predict, Baro 50 Hz update) — harte Latenz
-//   Core 0: BLE (5 Hz LK8EX1 + NMEA), Display (5 Hz), Audio-Render
+//   Core 0: BLE (5 Hz LK8EX1 + NMEA), Display (5 Hz), Audio-Render, FANET-TX
 //
-// Sensortreiber: v0.1 nutzt die im Aura-Projekt bewährten Register-Zugriffe
-// (BMP581/LSM6DSO32/SHT40 sind Ivos Standard-Trio, gleiche I2C-Map wie Vario v3).
-// T2 portiert die Treiber aus dem Aura-Monorepo hierher (eigener Code = ok).
+// Boards:
+//   Heltec V3/V4 (silent/audio): Sensorik SIMULIERT (sensors_stub.cpp)
+//   Serienboard (series/series_vision): echte Treiber (sensors_series.cpp),
+//     GNSS-Parser, FANET-Tracking (Typ 1, nur TX), I2S-Audio + Ansagen
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -15,28 +16,27 @@
 #include <esp_idf_version.h>
 #include "config.h"
 #include "vario.h"
+#include "sensors.h"
+#include "gnss.h"
 #include "ble_link.h"
 #include "display.h"
 #ifdef VARIANT_AUDIO
 #include "audio.h"
 AudioEngine audio;
 #endif
+#ifdef BOARD_SERIES
+#include <SPI.h>
+#include "fanet_tx.h"
+FanetTx fanetTx;
+#endif
 
 VarioKF  kf;
 BleLink  ble;
 Display  disp;
+NmeaParser gnss;
 HardwareSerial GnssSerial(1);
 
-// --- Platzhalter-Sensor-API bis T2 die echten Treiber portiert ---
-namespace sensors {
-  bool  init();                 // I2C-Scan + Konfiguration
-  float readPressurePa();       // BMP581
-  void  readAccel(float&, float&, float&);  // LSM6DSO32, m/s²
-  float readTempC();            // SHT40
-}
-
 volatile float g_vario = 0, g_alt = 0;
-static float g_gsKmh = 0; static bool g_fix = false;
 static float g_lastTemp = 15.0f;
 
 // --- Sensor-Task: Kern des Varios ---
@@ -53,7 +53,8 @@ void sensorTask(void*) {
 
     if (millis() - lastBaro >= 1000 / BARO_RATE_HZ) {
       lastBaro = millis();
-      kf.update(pressureToAlt(sensors::readPressurePa()));
+      float p = sensors::readPressurePa();
+      if (p > 0) kf.update(pressureToAlt(p));
     }
     g_vario = kf.vario();
     g_alt   = kf.altitude();
@@ -61,31 +62,42 @@ void sensorTask(void*) {
   }
 }
 
-// --- GNSS: NMEA durchreichen + Speed/Fix extrahieren (RMC) ---
+// --- GNSS: Zeilen parsen (RMC+GGA) + roh per BLE durchreichen ---
 static void pumpGnss() {
-  static char line[100]; static size_t pos = 0;
   while (GnssSerial.available()) {
-    char c = GnssSerial.read();
-    if (c == '\n') {
-      line[pos] = 0; pos = 0;
-      if (strncmp(line, "$G", 2) == 0 &&
-          (strstr(line, "RMC") || strstr(line, "GGA"))) {
-        ble.sendLine(line); ble.sendLine("\r\n");
-        if (strstr(line, "RMC")) {
-          // Feld 7 = Speed in Knoten, Feld 2 = Status A/V  (simpel, T2 härten)
-          char* f = line; int idx = 0; float kn = 0; char stat = 'V';
-          while ((f = strchr(f, ',')) != nullptr) {
-            f++; idx++;
-            if (idx == 2) stat = *f;
-            if (idx == 7) kn = strtof(f, nullptr);
-          }
-          g_fix = (stat == 'A');
-          g_gsKmh = kn * 1.852f;
-        }
+    if (gnss.feed((char)GnssSerial.read())) {
+      const char* l = gnss.line();
+      if (strncmp(l, "$G", 2) == 0 && (strstr(l, "RMC") || strstr(l, "GGA"))) {
+        ble.sendLine(l); ble.sendLine("\r\n");
       }
-    } else if (pos < sizeof(line) - 1 && c != '\r') line[pos++] = c;
+    }
   }
 }
+
+#ifdef BOARD_SERIES
+// --- Batterie: Teiler 1M/1M -> VBAT/2 an ADC ---
+static int batteryPct() {
+  uint32_t mv = analogReadMilliVolts(PIN_VBAT_ADC) * 2;
+  float pct = (mv - 3300) / (4200.0f - 3300.0f) * 100.0f;  // linear, grob
+  if (pct < 0) pct = 0; if (pct > 100) pct = 100;
+  return (int)pct;
+}
+
+// --- Flugerkennung (Hysterese): Fix + Speed ---
+static bool flying() {
+  static bool fly = false;
+  static uint32_t slowSince = 0;
+  bool fresh = gnss.data.fix && (millis() - gnss.data.lastFixMs < 5000);
+  if (!fly) {
+    if (fresh && gnss.data.speed_kmh > FLIGHT_START_KMH) fly = true;
+  } else {
+    if (fresh && gnss.data.speed_kmh > FLIGHT_STOP_KMH) slowSince = 0;
+    else if (!slowSince) slowSince = millis();
+    else if (millis() - slowSince > FLIGHT_STOP_HOLD_MS) { fly = false; slowSince = 0; }
+  }
+  return fly;
+}
+#endif
 
 void setup() {
   Serial.begin(115200);
@@ -99,12 +111,25 @@ void setup() {
 #endif
   esp_task_wdt_add(NULL);
 
+#ifdef BOARD_SERIES
+  pinMode(PIN_LED, OUTPUT);
+  digitalWrite(PIN_LED, HIGH);            // an bis Setup durch
+  pinMode(PIN_BTN, INPUT_PULLUP);
+  pinMode(PIN_LORA_NSS, OUTPUT); digitalWrite(PIN_LORA_NSS, HIGH);
+  pinMode(PIN_OLED_CS, OUTPUT);  digitalWrite(PIN_OLED_CS, HIGH);
+  SPI.begin(PIN_SPI_SCK, PIN_SPI_MISO, PIN_SPI_MOSI);   // geteilter SPI2-Bus
+#endif
+
   disp.begin();
   if (!sensors::init()) Serial.println("[ERR] Sensor-Init — I2C-Map prüfen");
   ble.begin(DEVICE_NAME);
   GnssSerial.begin(GNSS_BAUD, SERIAL_8N1, PIN_GNSS_RX, PIN_GNSS_TX);
 #ifdef VARIANT_AUDIO
   audio.begin();
+#endif
+#ifdef BOARD_SERIES
+  if (!fanetTx.begin()) Serial.println("[ERR] FANET-Init — SX1262 prüfen");
+  digitalWrite(PIN_LED, LOW);
 #endif
 
   xTaskCreatePinnedToCore(sensorTask, "sensor", 4096, nullptr, 10, nullptr, 1);
@@ -119,13 +144,30 @@ void loop() {
 
   if (now - lastTemp > 5000) { lastTemp = now; g_lastTemp = sensors::readTempC(); }
 
+  int batt = -1;
+#ifdef BOARD_SERIES
+  batt = batteryPct();
+
+  // FANET-Tracking: alle 5 s, nur im Flug (Doppel-Sicherung: Flag + Flug)
+  static uint32_t lastFanet = 0;
+  bool fanetActive = false;
+  if (FANET_TX_ENABLED && fanetTx.ok && flying() &&
+      now - lastFanet >= FANET_TX_INTERVAL_MS) {
+    lastFanet = now;
+    fanetActive = fanetTx.sendTracking(gnss.data.lat, gnss.data.lon,
+                                     gnss.data.alt_m, gnss.data.speed_kmh,
+                                     g_vario, gnss.data.course_deg);
+  }
+  disp.status(gnss.data.sats, fanetActive || (now - lastFanet < 2 * FANET_TX_INTERVAL_MS && lastFanet));
+#endif
+
   if (now - lastTx >= 1000 / LK8EX1_RATE_HZ) {
     lastTx = now;
-    ble.sendLK8EX1(sensors::readPressurePa(), g_alt, g_vario, g_lastTemp, -1);
+    ble.sendLK8EX1(sensors::readPressurePa(), g_alt, g_vario, g_lastTemp, batt);
   }
   if (now - lastDisp >= 200) {
     lastDisp = now;
-    disp.flight(g_vario, g_alt, g_gsKmh, ble.connected(), g_fix);
+    disp.flight(g_vario, g_alt, gnss.data.speed_kmh, ble.connected(), gnss.data.fix);
   }
 #ifdef VARIANT_AUDIO
   audio.render(g_vario);

@@ -21,3 +21,6 @@ hardware/project/.history/
 hardware/route/freerouting-*.jar
 
 __pycache__/
+
+# Generierte Audio-Testsamples (tools/make_test_wav.py)
+data/voice/test.wav
