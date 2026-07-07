@@ -18,7 +18,7 @@ HOLE_R = int(0.15 * MM)         # Via-Bohrung Halbmesser (0.3 mm)
 STUB_W = int(0.2 * MM)
 SAMP = int(0.1 * MM)
 # Wie weit das Bohrloch/Body ueber die Pad-Kante hinaus muss (mm):
-TARGETS = [0.30, 0.26, 0.22, 0.18]     # >=0.15 -> Bohrung frei vom Pad
+TARGETS = [0.30, 0.26, 0.22, 0.18, 0.16]     # >=0.15 -> Bohrung frei vom Pad
 
 board = pcbnew.LoadBoard(r"project/aurabip_routed.kicad_pcb")
 GND = board.GetNetsByName()["GND"].GetNetCode()
@@ -207,7 +207,7 @@ for idx, v, fp, pad in targets:
         # bis (a) ausserhalb Pad mit >= target Abstand.
         cands = []
         for dx, dy in DIRS:
-            for step in range(2, 40):     # 0.05 mm Schritte bis 2.0 mm
+            for step in range(2, 70):     # 0.05 mm Schritte bis 3.5 mm
                 r = step * int(0.05 * MM)
                 Px = int(Ox + dx * r)
                 Py = int(Oy + dy * r)
