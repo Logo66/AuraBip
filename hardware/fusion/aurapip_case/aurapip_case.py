@@ -41,10 +41,9 @@ import traceback
 VARIANT = "vision"
 PORT = True
 ANT_STUB = False
-# Stege vor der Membran: 0 = ganz offen (Lautsprecher voll sichtbar; der
-# 1.5-mm-Rand bleibt trotzdem — er haelt den K28-Flansch von vorn, deckt
-# aber nur den Metallrand ab, nicht die Membran). 2 = Beruehrschutz-Stege.
-GRILL_BARS = 0
+# Stege vor der Membran (Beruehrschutz). Ivo 2026-07-16: "Stege sind in
+# Ordnung, lieber einer mehr" -> 3. Der 1.5-mm-Rand haelt den K28-Flansch.
+GRILL_BARS = 3
 # Display-Befestigung: "kleben" = Glas sauber in enge Tasche eingepasst,
 # PCB-Rand von hinten mit Kleberaupe (E6000/Silikon) an die Deckeldecke —
 # einfachste, flachste Loesung. "rahmen" = geschraubter Klemmrahmen
@@ -346,9 +345,12 @@ def run(context):
 
         # ---- Lautsprecher in der Rundung ----
         # 1) Kammer-Hohlraum ausschneiden (funktioniert in Luft UND im
-        #    soliden Rundungs-Bereich gleichermassen)
+        #    soliden Rundungs-Bereich gleichermassen). Schnitt reicht 0.05
+        #    IN die Frontplatte hinein — sonst bleibt eine hauchduenne
+        #    Rest-Haut zwischen Kammer und Front-Oeffnung stehen
+        #    ("abgedeckter Lautsprecher", Ivo 2026-07-16).
         ext(circ(plane_at(z_ceil - boss_h), cx, y_ch, P["spk_d"]),
-            boss_h - 0.01, CUT, lid)
+            boss_h + 0.05, CUT, lid)
         # 2) Boss-Ring auffuellen (dort wo Kammer in der Deckel-Kavitaet liegt)
         sk = sketches.add(plane_at(z_ceil - boss_h))
         sk.sketchCurves.sketchCircles.addByCenterRadius(
@@ -364,10 +366,12 @@ def run(context):
         i.participantBodies = [lid]
         extrudes.add(i)
 
-        # 3) Volle Front-Oeffnung (Lautsprecher sichtbar), nur schmale Lippe
+        # 3) Volle Front-Oeffnung (Lautsprecher sichtbar), nur schmale Lippe.
+        #    Beginnt 0.2 UNTER der Plattenunterseite -> ueberlappt sicher
+        #    mit dem Kammer-Schnitt, keine Rest-Haut moeglich.
         open_d = P["spk_d"] - 2 * P["spk_open_lip"]
-        ext(circ(plane_at(z_ceil), cx, y_ch, open_d),
-            P["lid_plate"] + 0.1, CUT, lid)
+        ext(circ(plane_at(z_ceil - 0.2), cx, y_ch, open_d),
+            P["lid_plate"] + 0.4, CUT, lid)
         # optionale Schutzstege
         for k in range(GRILL_BARS):
             off = (k - (GRILL_BARS - 1) / 2.0) * 9.0
