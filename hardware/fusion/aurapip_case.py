@@ -9,11 +9,14 @@
 # K 28 WP; Display: Waveshare 1.32" OLED, SSD1327)
 #
 # v4 (Ivo, 2026-07-16) — Neuaufbau wegen Display-Einbau:
-#   - DISPLAY GANZ NACH OBEN: Fenster + Modul-Tasche sitzen direkt unter
-#     der Gehäuse-Oberkante. Echter Einbau statt 0.6-mm-Mulde:
-#     Modul liegt mit dem Glas in einer Tasche (auf 2-mm-Moosgummi-Band),
-#     der gedruckte DISPLAYRAHMEN drückt von hinten auf den PCB-Rand
-#     (2x M2.2 in seitliche Bosse), mit Aussparung für den 7-Pin-Stecker.
+#   - DISPLAY GANZ NACH OBEN, zwei Befestigungs-Varianten (DISP_MOUNT):
+#     "kleben" (Standard, Ivos Wahl): Glas sauber in eine enge Tasche
+#       eingepasst (0.4 Spiel, 1.8 tief -> Glas ganz versenkt), der
+#       ueberstehende PCB-Rand liegt an der Deckeldecke an und wird mit
+#       einer duennen Kleberaupe (E6000/Silikon) fixiert. NIE das Glas
+#       kleben. Flachste, einfachste Loesung.
+#     "rahmen": gedruckter Klemmrahmen drückt von hinten auf den
+#       PCB-Rand (2x M2.2 in Bosse) — zerlegbar, kein Kleber.
 #     Warum kein Verschrauben durch die Modul-Löcher: die 4x M2 liegen
 #     laut offizieller Masszeichnung (1_32inch_oled_module.pdf, geprüft
 #     2026-07-16) UNTER dem Glas — Front-Bosse dort sind unmöglich.
@@ -39,6 +42,11 @@ VARIANT = "vision"
 PORT = True
 ANT_STUB = False
 GRILL_BARS = 2
+# Display-Befestigung: "kleben" = Glas sauber in enge Tasche eingepasst,
+# PCB-Rand von hinten mit Kleberaupe (E6000/Silikon) an die Deckeldecke —
+# einfachste, flachste Loesung. "rahmen" = geschraubter Klemmrahmen
+# (zerlegbar, kein Kleber).
+DISP_MOUNT = "kleben"
 
 P = {
     "pcb_w": 52.0, "pcb_h": 52.0, "pcb_t": 1.6, "pcb_clear": 0.6,
@@ -76,6 +84,11 @@ P = {
     # glasbuendige Kante zeigt nach oben) -> A.A-Versatz positiv:
     "disp_win_w": 28.5, "disp_win_h": 21.7,   # Sichtfenster (A.A + Luft;
     "disp_off_x": 0.0, "disp_off_y": 1.2,     # Glasrand um A.A ist schwarz)
+    # "kleben": enge Glas-Tasche (das Glas SELBST zentriert das Modul)
+    "disp_glass_w": 32.60, "disp_glass_h": 28.30,
+    "disp_glass_clear": 0.4,   # Gesamtspiel der Einpassung
+    "disp_glass_off_y": -1.23, # Glas-Zentrum vs. Modul-Zentrum (Einbaulage)
+    "disp_glass_pock_d": 1.8,  # Glas (1.7) versenkt -> PCB liegt an der Decke an
     "disp_top_gap": 1.5,       # Abstand Modul-Oberkante zur Innenwand oben
     "disp_pock_d": 1.0,        # Taschen-Tiefe im Deckel (nimmt das Glas auf)
     "disp_stack": 4.1,         # Glasfront->PCB-Ruecken 3.3 + 0.8 Moosgummi
@@ -389,51 +402,64 @@ def run(context):
                      wcx - P["disp_win_w"] / 2, wcy - P["disp_win_h"] / 2,
                      wcx + P["disp_win_w"] / 2, wcy + P["disp_win_h"] / 2),
                 P["lid_plate"] + 0.1, CUT, lid)
-            # Modul-Tasche (Glas + Moosgummi-Band liegen darin)
-            ext(rect(plane_at(z_ceil - P["disp_pock_d"]),
-                     mcx - (P["disp_mod_w"] + 0.6) / 2,
-                     mcy - (P["disp_mod_h"] + 0.6) / 2,
-                     mcx + (P["disp_mod_w"] + 0.6) / 2,
-                     mcy + (P["disp_mod_h"] + 0.6) / 2),
-                P["disp_pock_d"], CUT, lid)
-            # 2 Klemm-Bosse links/rechts des Moduls
-            boss_hh = P["disp_stack"] - P["disp_pock_d"]
-            bx1 = mcx - (P["disp_mod_w"] / 2 + 4.0)
-            bx2 = mcx + (P["disp_mod_w"] / 2 + 4.0)
-            for bxx in (bx1, bx2):
-                ext(circ(plane_at(z_ceil - boss_hh), bxx, mcy, P["disp_boss_d"]),
-                    boss_hh, JOIN, lid)
-                ext(circ(plane_at(z_ceil - boss_hh), bxx, mcy,
-                         P["disp_boss_pilot"]),
-                    boss_hh - 0.01 + 1.0, CUT, lid)
-            # Displayrahmen (separates Teil): klemmt das Modul gegen den Deckel
-            z_fr = z_ceil - P["disp_stack"] - P["frame_t"]
-            frame = ext(rect(plane_at(z_fr),
-                             bx1 - P["frame_ear"] / 2, mcy - P["disp_mod_h"] / 2,
-                             bx2 + P["frame_ear"] / 2, mcy + P["disp_mod_h"] / 2),
-                        P["frame_t"], NB).bodies.item(0)
-            frame.name = "Displayrahmen"
-            # grosse Aussparung fuer Bauteile auf der Modul-Rueckseite
-            ext(rect(plane_at(z_fr),
-                     mcx - (P["disp_mod_w"] - 6.0) / 2,
-                     mcy - (P["disp_mod_h"] - 6.0) / 2,
-                     mcx + (P["disp_mod_w"] - 6.0) / 2,
-                     mcy + (P["disp_mod_h"] - 6.0) / 2),
-                P["frame_t"] + 0.1, CUT, frame)
-            # Aussparung fuer den 7-Pin-Stecker: Modul wird mit Stecker
-            # nach UNTEN eingebaut (3.5 von der Modulkante, ragt 2.5
-            # hinter die PCB -> genau in die Rahmen-Auflage). Kabel
-            # laeuft nach unten in den freien Innenraum.
-            ext(rect(plane_at(z_fr),
-                     mcx - P["conn_notch_w"] / 2,
-                     mcy + P["disp_mod_h"] / 2 - 7.0,
-                     mcx + P["conn_notch_w"] / 2,
-                     mcy + P["disp_mod_h"] / 2 + 0.1),
-                P["frame_t"] + 0.1, CUT, frame)
-            # Schraubenloecher (fluchten mit den Bossen)
-            for bxx in (bx1, bx2):
-                ext(circ(plane_at(z_fr), bxx, mcy, P["frame_hole"]),
+
+            if DISP_MOUNT == "kleben":
+                # Sauber eingepasst + eingeleimt: enge Glas-Tasche, das
+                # Glas selbst zentriert das Modul (0.4 Gesamtspiel), Glas
+                # versenkt sich ganz (1.8) -> der PCB-Rand (0.85/Seite)
+                # liegt flaechig an der Deckeldecke an und wird dort mit
+                # einer duennen Kleberaupe (E6000/Silikon) fixiert.
+                # NIE das Glas selbst kleben!
+                gw = P["disp_glass_w"] + P["disp_glass_clear"]
+                gh = P["disp_glass_h"] + P["disp_glass_clear"]
+                gcy = mcy + P["disp_glass_off_y"]
+                ext(rect(plane_at(z_ceil - P["disp_glass_pock_d"]),
+                         mcx - gw / 2, gcy - gh / 2,
+                         mcx + gw / 2, gcy + gh / 2),
+                    P["disp_glass_pock_d"], CUT, lid)
+            else:
+                # Variante "rahmen": Modul-Tasche + geschraubter Klemmrahmen
+                ext(rect(plane_at(z_ceil - P["disp_pock_d"]),
+                         mcx - (P["disp_mod_w"] + 0.6) / 2,
+                         mcy - (P["disp_mod_h"] + 0.6) / 2,
+                         mcx + (P["disp_mod_w"] + 0.6) / 2,
+                         mcy + (P["disp_mod_h"] + 0.6) / 2),
+                    P["disp_pock_d"], CUT, lid)
+                # 2 Klemm-Bosse links/rechts des Moduls
+                boss_hh = P["disp_stack"] - P["disp_pock_d"]
+                bx1 = mcx - (P["disp_mod_w"] / 2 + 4.0)
+                bx2 = mcx + (P["disp_mod_w"] / 2 + 4.0)
+                for bxx in (bx1, bx2):
+                    ext(circ(plane_at(z_ceil - boss_hh), bxx, mcy, P["disp_boss_d"]),
+                        boss_hh, JOIN, lid)
+                    ext(circ(plane_at(z_ceil - boss_hh), bxx, mcy,
+                             P["disp_boss_pilot"]),
+                        boss_hh - 0.01 + 1.0, CUT, lid)
+                # Displayrahmen (separates Teil)
+                z_fr = z_ceil - P["disp_stack"] - P["frame_t"]
+                frame = ext(rect(plane_at(z_fr),
+                                 bx1 - P["frame_ear"] / 2, mcy - P["disp_mod_h"] / 2,
+                                 bx2 + P["frame_ear"] / 2, mcy + P["disp_mod_h"] / 2),
+                            P["frame_t"], NB).bodies.item(0)
+                frame.name = "Displayrahmen"
+                # grosse Aussparung fuer Bauteile auf der Modul-Rueckseite
+                ext(rect(plane_at(z_fr),
+                         mcx - (P["disp_mod_w"] - 6.0) / 2,
+                         mcy - (P["disp_mod_h"] - 6.0) / 2,
+                         mcx + (P["disp_mod_w"] - 6.0) / 2,
+                         mcy + (P["disp_mod_h"] - 6.0) / 2),
                     P["frame_t"] + 0.1, CUT, frame)
+                # Aussparung fuer den 7-Pin-Stecker (Einbau Stecker UNTEN)
+                ext(rect(plane_at(z_fr),
+                         mcx - P["conn_notch_w"] / 2,
+                         mcy + P["disp_mod_h"] / 2 - 7.0,
+                         mcx + P["conn_notch_w"] / 2,
+                         mcy + P["disp_mod_h"] / 2 + 0.1),
+                    P["frame_t"] + 0.1, CUT, frame)
+                # Schraubenloecher (fluchten mit den Bossen)
+                for bxx in (bx1, bx2):
+                    ext(circ(plane_at(z_fr), bxx, mcy, P["frame_hole"]),
+                        P["frame_t"] + 0.1, CUT, frame)
 
         # ---- Kammerdeckel (separates Teil) ----
         cap = ext(circ(plane_at(z_ceil - boss_h - 1.4), cx, y_ch, boss_od),
@@ -448,10 +474,13 @@ def run(context):
             f"Aussen: {out_w:.1f} x {out_h:.1f} (+{bulge_out:.1f} Rundung) "
             f"x {z_top:.1f} mm\n\n"
             "NEU v4:\n"
-            "- Display ganz oben; Einbau: Modul MIT STECKER NACH UNTEN in die\n"
-            "  Tasche (Glas nach vorn, rundum 2-mm-Moosgummi-Band als Auflage),\n"
-            "  Displayrahmen dahinter mit 2x M2.2 in die Bosse -> klemmt, kein\n"
-            "  Kleben. (Modul-Bohrloecher liegen UNTERM Glas -> unbrauchbar,\n"
+            "- Display ganz oben, MIT STECKER NACH UNTEN einbauen.\n"
+            + ("  Befestigung: Glas in die enge Tasche einpassen (versenkt sich\n"
+               "  ganz), duenne Kleberaupe E6000/Silikon auf den PCB-Rand an\n"
+               "  die Decke - NIE das Glas kleben!\n"
+               if DISP_MOUNT == "kleben" else
+               "  Befestigung: Displayrahmen dahinter, 2x M2.2 in die Bosse.\n")
+            + "  (Modul-Bohrloecher liegen UNTERM Glas -> unbrauchbar,\n"
             "  gegen Waveshare-Masszeichnung verifiziert.)\n"
             "- Lautsprecher voll sichtbar in der unteren Rundung\n"
             f"  (Oeffnung {P['spk_d'] - 2 * P['spk_open_lip']:.1f} mm, "
