@@ -41,7 +41,10 @@ import traceback
 VARIANT = "vision"
 PORT = True
 ANT_STUB = False
-GRILL_BARS = 2
+# Stege vor der Membran: 0 = ganz offen (Lautsprecher voll sichtbar; der
+# 1.5-mm-Rand bleibt trotzdem — er haelt den K28-Flansch von vorn, deckt
+# aber nur den Metallrand ab, nicht die Membran). 2 = Beruehrschutz-Stege.
+GRILL_BARS = 0
 # Display-Befestigung: "kleben" = Glas sauber in enge Tasche eingepasst,
 # PCB-Rand von hinten mit Kleberaupe (E6000/Silikon) an die Deckeldecke —
 # einfachste, flachste Loesung. "rahmen" = geschraubter Klemmrahmen
