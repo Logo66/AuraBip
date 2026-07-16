@@ -5,13 +5,18 @@
 # Ordner wählen -> aurapip_case. Erzeugt 4 Körper:
 #   Basis, Deckel, Kammerdeckel, Displayrahmen
 #
+# Erzeugte Körper: Basis, Deckel, Kammerdeckel  (Lautsprecher: Visaton
+# K 28 WP; Display: Waveshare 1.32" OLED, SSD1327)
+#
 # v4 (Ivo, 2026-07-16) — Neuaufbau wegen Display-Einbau:
 #   - DISPLAY GANZ NACH OBEN: Fenster + Modul-Tasche sitzen direkt unter
 #     der Gehäuse-Oberkante. Echter Einbau statt 0.6-mm-Mulde:
-#     Modul liegt in einer Tasche (Glas nach vorn, Moosgummi-Band),
-#     ein gedruckter DISPLAYRAHMEN klemmt es von hinten gegen den Deckel
-#     (2x M2.2-Schrauben in seitliche Bosse) — unabhängig von den
-#     Modul-Bohrlöchern, kein Kleben.
+#     Modul liegt mit dem Glas in einer Tasche (auf 2-mm-Moosgummi-Band),
+#     der gedruckte DISPLAYRAHMEN drückt von hinten auf den PCB-Rand
+#     (2x M2.2 in seitliche Bosse), mit Aussparung für den 7-Pin-Stecker.
+#     Warum kein Verschrauben durch die Modul-Löcher: die 4x M2 liegen
+#     laut offizieller Masszeichnung (1_32inch_oled_module.pdf, geprüft
+#     2026-07-16) UNTER dem Glas — Front-Bosse dort sind unmöglich.
 #   - LAUTSPRECHER VOLL SICHTBAR: kein 22-mm-Trichter mehr; volle
 #     Öffnung (spk_d - 2x Lippe), optional 2 dünne Schutzstege.
 #   - RUNDUNG UNTEN RAUSGEZOGEN: halbrunde Ausbuchtung an der Unterkante
@@ -57,15 +62,26 @@ P = {
     "grill_bar": 1.1,
     # Reflexoeffnung (direkt durch die Rundungswand nach unten)
     "port_w": 3.0, "port_h": 3.0,
-    # Display Waveshare 1.32" (Masse verifiziert, v3)
+    # Display Waveshare 1.32" — ALLE Werte aus der offiziellen
+    # Masszeichnung 1_32inch_oled_module.pdf (verifiziert 2026-07-16):
+    # PCB 34.3x30.5x1.6, Glas 32.6x28.3 (nur ~1 mm Rand!), Glas-Stack vor
+    # der PCB 1.7 (gesamt 3.3), aktive Flaeche 26.86x20.14, 7-Pin-1.25er-
+    # Stecker hinten oben (3.5 von Oberkante, ragt 2.5 hinter die PCB).
+    # ACHTUNG: die 4x M2-Loecher (Raster 29.10x24.90) liegen UNTER dem
+    # Glas -> fuer Front-Montage UNBRAUCHBAR. Darum KLEMMRAHMEN:
+    # Modul liegt mit dem Glas auf Moosgummi in der Tasche, der Rahmen
+    # drueckt von hinten auf den PCB-Rand (2x M2.2 in seitliche Bosse).
     "disp_mod_w": 34.30, "disp_mod_h": 30.50,
-    "disp_win_w": 27.26, "disp_win_h": 20.54,
-    "disp_off_x": 0.0, "disp_off_y": -0.98,
+    # Modul mit Stecker nach UNTEN einbauen (Kabel in den Innenraum,
+    # glasbuendige Kante zeigt nach oben) -> A.A-Versatz positiv:
+    "disp_win_w": 28.5, "disp_win_h": 21.7,   # Sichtfenster (A.A + Luft;
+    "disp_off_x": 0.0, "disp_off_y": 1.2,     # Glasrand um A.A ist schwarz)
     "disp_top_gap": 1.5,       # Abstand Modul-Oberkante zur Innenwand oben
-    "disp_pock_d": 1.0,        # Taschen-Tiefe im Deckel (Glas + Moosgummi)
-    "disp_stack": 4.2,         # Modulhoehe Glas+PCB unter der Deckeldecke
-    "disp_boss_d": 6.0, "disp_boss_pilot": 1.8,   # M2.2 selbstschneidend
+    "disp_pock_d": 1.0,        # Taschen-Tiefe im Deckel (nimmt das Glas auf)
+    "disp_stack": 4.1,         # Glasfront->PCB-Ruecken 3.3 + 0.8 Moosgummi
+    "disp_boss_d": 6.0, "disp_boss_pilot": 1.8,     # M2.2 selbstschneidend
     "frame_t": 2.0, "frame_ear": 8.0, "frame_hole": 2.4,
+    "conn_notch_w": 14.0,      # Aussparung im Rahmen fuer den 7-Pin-Stecker
     # Durchbrueche (Platinen-Koordinaten wie v3; Einbau um 180° GEDREHT)
     "usb_x": 12.0, "usb_w": 10.2, "usb_h": 4.0,
     "usb_pock_w": 15.0, "usb_pock_h": 8.5, "usb_pock_d": 3.0,
@@ -397,12 +413,22 @@ def run(context):
                              bx2 + P["frame_ear"] / 2, mcy + P["disp_mod_h"] / 2),
                         P["frame_t"], NB).bodies.item(0)
             frame.name = "Displayrahmen"
-            # grosse Aussparung fuer Bauteile/Stecker auf der Modul-Rueckseite
+            # grosse Aussparung fuer Bauteile auf der Modul-Rueckseite
             ext(rect(plane_at(z_fr),
                      mcx - (P["disp_mod_w"] - 6.0) / 2,
                      mcy - (P["disp_mod_h"] - 6.0) / 2,
                      mcx + (P["disp_mod_w"] - 6.0) / 2,
                      mcy + (P["disp_mod_h"] - 6.0) / 2),
+                P["frame_t"] + 0.1, CUT, frame)
+            # Aussparung fuer den 7-Pin-Stecker: Modul wird mit Stecker
+            # nach UNTEN eingebaut (3.5 von der Modulkante, ragt 2.5
+            # hinter die PCB -> genau in die Rahmen-Auflage). Kabel
+            # laeuft nach unten in den freien Innenraum.
+            ext(rect(plane_at(z_fr),
+                     mcx - P["conn_notch_w"] / 2,
+                     mcy + P["disp_mod_h"] / 2 - 7.0,
+                     mcx + P["conn_notch_w"] / 2,
+                     mcy + P["disp_mod_h"] / 2 + 0.1),
                 P["frame_t"] + 0.1, CUT, frame)
             # Schraubenloecher (fluchten mit den Bossen)
             for bxx in (bx1, bx2):
@@ -422,9 +448,11 @@ def run(context):
             f"Aussen: {out_w:.1f} x {out_h:.1f} (+{bulge_out:.1f} Rundung) "
             f"x {z_top:.1f} mm\n\n"
             "NEU v4:\n"
-            "- Display ganz oben; Einbau: Modul in die Tasche (Glas nach vorn,\n"
-            "  rundum 2-mm-Moosgummi-Band als Auflage), Displayrahmen dahinter\n"
-            "  mit 2x M2.2 in die Bosse schrauben -> klemmt, kein Kleben.\n"
+            "- Display ganz oben; Einbau: Modul MIT STECKER NACH UNTEN in die\n"
+            "  Tasche (Glas nach vorn, rundum 2-mm-Moosgummi-Band als Auflage),\n"
+            "  Displayrahmen dahinter mit 2x M2.2 in die Bosse -> klemmt, kein\n"
+            "  Kleben. (Modul-Bohrloecher liegen UNTERM Glas -> unbrauchbar,\n"
+            "  gegen Waveshare-Masszeichnung verifiziert.)\n"
             "- Lautsprecher voll sichtbar in der unteren Rundung\n"
             f"  (Oeffnung {P['spk_d'] - 2 * P['spk_open_lip']:.1f} mm, "
             f"{GRILL_BARS} Schutzstege).\n"
