@@ -37,6 +37,7 @@
 import adsk.core
 import adsk.fusion
 import traceback
+import math
 
 VARIANT = "vision"
 PORT = True
@@ -56,6 +57,8 @@ P = {
     "bat_t": 5.0, "bat_clear": 0.4,
     "wall": 5.0, "floor": 2.0, "lid_plate": 2.0,
     "lid_cavity": 9.2, "ledge": 2.0,
+    "corner_r": 6.0,   # Rundung der 4 Gehaeuse-Ecken (max ~6.5, sonst
+                       # kollidieren die Eck-Schrauben bei scr_pos 3.6)
     # Nut/Feder (Nut in Basis-Stirnflaeche, Mittellinie 1.2 von aussen)
     "groove_w": 1.5, "groove_d": 1.5, "groove_off": 1.2,
     "tongue_clear": 0.15,
@@ -166,6 +169,35 @@ def run(context):
                 adsk.core.Point3D.create(mm(cx), mm(cy), 0), mm(d / 2.0))
             return sk
 
+        def rrect_path(sk, x1, y1, x2, y2, r):
+            """Zeichnet ein Rechteck mit runden Ecken (Radius r) in sk."""
+            ln = sk.sketchCurves.sketchLines
+            ar = sk.sketchCurves.sketchArcs
+
+            def p(X, Y):
+                return adsk.core.Point3D.create(mm(X), mm(Y), 0)
+
+            ln.addByTwoPoints(p(x1 + r, y1), p(x2 - r, y1))
+            ln.addByTwoPoints(p(x2, y1 + r), p(x2, y2 - r))
+            ln.addByTwoPoints(p(x2 - r, y2), p(x1 + r, y2))
+            ln.addByTwoPoints(p(x1, y2 - r), p(x1, y1 + r))
+            ar.addByCenterStartSweep(p(x1 + r, y1 + r), p(x1, y1 + r), math.pi / 2)
+            ar.addByCenterStartSweep(p(x2 - r, y1 + r), p(x2 - r, y1), math.pi / 2)
+            ar.addByCenterStartSweep(p(x2 - r, y2 - r), p(x2, y2 - r), math.pi / 2)
+            ar.addByCenterStartSweep(p(x1 + r, y2 - r), p(x1 + r, y2), math.pi / 2)
+
+        def rring(plane, x1, y1, x2, y2, inset, r_out):
+            """Ring aus zwei konzentrischen Rundeck-Rechtecken."""
+            sk = sketches.add(plane)
+            rrect_path(sk, x1, y1, x2, y2, r_out)
+            rrect_path(sk, x1 + inset, y1 + inset, x2 - inset, y2 - inset,
+                       max(0.3, r_out - inset))
+            prof = None
+            for i in range(sk.profiles.count):
+                if sk.profiles.item(i).profileLoops.count == 2:
+                    prof = sk.profiles.item(i)
+            return prof
+
         def all_profiles(sk):
             coll = adsk.core.ObjectCollection.create()
             for i in range(sk.profiles.count):
@@ -223,11 +255,9 @@ def run(context):
                   (out_w - P["scr_pos"], out_h - P["scr_pos"])]
 
         def outline_sketch(plane):
-            """Quadrat + Halbrund-Ausbuchtung unten (ueberlappend)."""
+            """Rundeck-Quadrat + Halbrund-Ausbuchtung unten (ueberlappend)."""
             sk = sketches.add(plane)
-            sk.sketchCurves.sketchLines.addTwoPointRectangle(
-                adsk.core.Point3D.create(0, 0, 0),
-                adsk.core.Point3D.create(mm(out_w), mm(out_h), 0))
+            rrect_path(sk, 0, 0, out_w, out_h, P["corner_r"])
             sk.sketchCurves.sketchCircles.addByCenterRadius(
                 adsk.core.Point3D.create(mm(cx), mm(y_ch), 0), mm(r_bulge))
             return sk
@@ -249,11 +279,13 @@ def run(context):
         i.participantBodies = [base]
         extrudes.add(i)
 
-        # Nut in der Basis-Stirnflaeche (voller Ring; im Rundungs-Bereich
-        # liegt sie in der Ausbuchtung — dort hat die Feder eine Luecke)
+        # Nut in der Basis-Stirnflaeche (voller Rundeck-Ring — folgt den
+        # runden Gehaeuse-Ecken; im Rundungs-Bereich liegt sie in der
+        # Ausbuchtung, dort hat die Feder eine Luecke)
         g0 = P["groove_off"]
-        prof = ring(plane_at(z_part - P["groove_d"]), g0, g0,
-                    out_w - g0, out_h - g0, P["groove_w"])
+        prof = rring(plane_at(z_part - P["groove_d"]), g0, g0,
+                     out_w - g0, out_h - g0, P["groove_w"],
+                     P["corner_r"] - g0)
         i = extrudes.createInput(prof, CUT)
         i.setDistanceExtent(False,
                             adsk.core.ValueInput.createByReal(mm(P["groove_d"] + 0.1)))
@@ -318,11 +350,12 @@ def run(context):
                  P["wall"] + in_w, P["wall"] + in_h),
             P["lid_cavity"], CUT, lid)
 
-        # Feder (Gegenstueck zur Nut)
+        # Feder (Gegenstueck zur Nut, Rundeck-Ring wie die Nut)
         tc = P["tongue_clear"]
-        prof = ring(plane_at(z_part - P["groove_d"] + tc),
-                    g0 + tc, g0 + tc, out_w - g0 - tc, out_h - g0 - tc,
-                    P["groove_w"] - 2 * tc)
+        prof = rring(plane_at(z_part - P["groove_d"] + tc),
+                     g0 + tc, g0 + tc, out_w - g0 - tc, out_h - g0 - tc,
+                     P["groove_w"] - 2 * tc,
+                     P["corner_r"] - g0 - tc)
         i = extrudes.createInput(prof, JOIN)
         i.setDistanceExtent(False, adsk.core.ValueInput.createByReal(
             mm(P["groove_d"] - tc)))
