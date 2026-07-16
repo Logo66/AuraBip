@@ -1,0 +1,10 @@
+{
+    "autodeskProduct": "Fusion360",
+    "type": "script",
+    "author": "KIE Engineering",
+    "description": {
+        "": "AuraPIP Gehaeuse-Generator v4 - Display oben (eingepasst/geklebt), Visaton K28 in unterer Rundung"
+    },
+    "supportedOS": "windows|mac",
+    "editEnabled": true
+}
