@@ -292,9 +292,13 @@ def run(context):
         i.participantBodies = [base]
         extrudes.add(i)
 
-        # Freistellung in der Basis-Stirn unter dem Kammer-Boss (der ragt
-        # 1 mm unter die Trennebene; im Rundungs-Bereich ist die Basis voll)
-        ext(circ(plane_at(z_part - 1.8), cx, y_ch, boss_od + 0.8),
+        # Zentrierbund-Sitz in der Basis-Stirn: der Kammer-Topf des Deckels
+        # ragt 1 mm unter die Trennebene und taucht hier ein. Das ist die
+        # VERBINDUNG im Rundungs-Bereich (dort gibt es keine Nut/Feder und
+        # keine Schraube): der Topf zentriert die Rundung, die Eckschrauben
+        # klemmen, der eingeklebte Kammerdeckel dichtet die Kammer.
+        # 0.15 Spiel je Seite = stramm, aber fuegbar (FDM).
+        ext(circ(plane_at(z_part - 1.8), cx, y_ch, boss_od + 0.3),
             1.9, CUT, base)
 
         # Insert-Bohrungen (3.2 x 4.5) von der Stirnflaeche nach unten
